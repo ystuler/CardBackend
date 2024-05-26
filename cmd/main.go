@@ -2,9 +2,11 @@ package main
 
 import (
 	"back/db"
+	"back/internal/handler"
 	"back/internal/repository"
 	"back/internal/service"
 	"log"
+	"net/http"
 )
 
 func main() {
@@ -14,5 +16,10 @@ func main() {
 	}
 
 	repos := repository.NewRepository(database.GetDB())
-	_ = service.NewService(repos)
+	services := service.NewService(repos)
+	handlers := handler.NewHandler(services)
+
+	r := handlers.InitRoutes()
+
+	http.ListenAndServe(":8000", r)
 }
