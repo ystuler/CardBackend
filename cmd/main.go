@@ -3,6 +3,7 @@ package main
 import (
 	"back/db"
 	"back/internal/repository"
+	"back/internal/service"
 	"log"
 )
 
@@ -12,5 +13,6 @@ func main() {
 		log.Fatalf("could not initialize database connection: %s", err)
 	}
 
-	_ = repository.NewRepository(database.GetDB())
+	repos := repository.NewRepository(database.GetDB())
+	_ = service.NewService(repos)
 }
