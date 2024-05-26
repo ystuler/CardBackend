@@ -1,6 +1,7 @@
 package db
 
 import (
+	"back/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -26,6 +27,11 @@ func NewDatabase() (*Database, error) {
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
+
+	err = db.AutoMigrate(&models.User{})
+	if err != nil {
+		log.Printf("Error auto migrate %v", err)
+	}
 
 	return &Database{db: db}, nil
 }
