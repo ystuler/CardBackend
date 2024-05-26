@@ -5,16 +5,16 @@ import (
 	"gorm.io/gorm"
 )
 
-type User interface {
+type UserRepository interface {
 	CreateUser(user *models.User) (*models.User, error)
 }
 
 type Repository struct {
-	User
+	UserRepository
 }
 
 func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
-		User: NewUserRepo(db),
+		UserRepository: NewUserRepo(db),
 	}
 }

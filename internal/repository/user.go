@@ -5,15 +5,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserRepo struct {
+type UserRepositoryImpl struct {
 	db *gorm.DB
 }
 
-func NewUserRepo(db *gorm.DB) *UserRepo {
-	return &UserRepo{db: db}
+func NewUserRepo(db *gorm.DB) *UserRepositoryImpl {
+	return &UserRepositoryImpl{db: db}
 }
 
-func (r *UserRepo) CreateUser(user *models.User) (*models.User, error) {
+func (r *UserRepositoryImpl) CreateUser(user *models.User) (*models.User, error) {
 	if err := r.db.Create(&user).Error; err != nil {
 		return nil, err
 	}
