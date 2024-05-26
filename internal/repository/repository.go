@@ -2,7 +2,6 @@ package repository
 
 import (
 	"back/internal/models"
-	userRepo "back/internal/repository/user"
 	"gorm.io/gorm"
 )
 
@@ -16,6 +15,6 @@ type Repository struct {
 
 func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
-		User: userRepo.NewUserRepo(db),
+		User: NewUserRepo(db),
 	}
 }
