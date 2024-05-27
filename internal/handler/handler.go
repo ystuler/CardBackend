@@ -2,16 +2,18 @@ package handler
 
 import (
 	"back/internal/service"
+	"back/internal/util"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 )
 
 type Handler struct {
-	services *service.Service
+	services  *service.Service
+	validator *util.Validator
 }
 
-func NewHandler(services *service.Service) *Handler {
-	return &Handler{services: services}
+func NewHandler(services *service.Service, validator *util.Validator) *Handler {
+	return &Handler{services: services, validator: validator}
 }
 
 func (h *Handler) InitRoutes() *chi.Mux {
