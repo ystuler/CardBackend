@@ -3,18 +3,19 @@ package service
 import (
 	"back/internal/models"
 	"back/internal/repository"
+	"back/internal/schemas"
 )
 
-type UserService interface {
-	Create(user *models.User) (*models.User, error)
+type Authorization interface {
+	CreateUser(userSchema *schemas.CreateUserReq) (*models.User, error)
 }
 
 type Service struct {
-	UserService
+	Authorization
 }
 
 func NewService(repo repository.UserRepository) *Service {
 	return &Service{
-		UserService: NewUserService(repo),
+		Authorization: NewUserService(repo),
 	}
 }

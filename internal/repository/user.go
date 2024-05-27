@@ -19,3 +19,11 @@ func (r *UserRepositoryImpl) CreateUser(user *models.User) (*models.User, error)
 	}
 	return user, nil
 }
+
+func (r *UserRepositoryImpl) GetUserByUsername(username string) (*models.User, error) {
+	var user models.User
+	if err := r.db.Where("username= ?", username).First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
