@@ -20,7 +20,6 @@ func (h *Handler) InitRoutes() *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Get("/swagger", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("todo")) })
-	r.Get("/user", func(w http.ResponseWriter, r *http.Request) {})
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/signup", h.signUp)
