@@ -24,7 +24,7 @@ func (h *Handler) InitRoutes() *chi.Mux {
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/signup", h.signUp)
-		r.Post("/login", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("sign-up")) })
+		r.Post("/login", h.signIn)
 	})
 
 	return r

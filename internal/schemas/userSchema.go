@@ -9,3 +9,14 @@ type CreateUserResp struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
 }
+
+type SignInReq struct {
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
+}
+
+type SignInResp struct {
+	Token    string `json:"token"`
+	ID       int    `json:"id"`
+	Username string `json:"username"`
+}

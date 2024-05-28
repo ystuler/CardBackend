@@ -1,13 +1,13 @@
 package service
 
 import (
-	"back/internal/models"
 	"back/internal/repository"
 	"back/internal/schemas"
 )
 
 type Authorization interface {
-	CreateUser(userSchema *schemas.CreateUserReq) (*models.User, error)
+	CreateUser(userSchema *schemas.CreateUserReq) (*schemas.CreateUserResp, error)
+	SignIn(userSchema *schemas.SignInReq) (*schemas.SignInResp, error)
 }
 
 type Service struct {
