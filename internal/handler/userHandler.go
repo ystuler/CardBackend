@@ -25,13 +25,8 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userSchemaResp := schemas.CreateUserResp{
-		ID:       createdUser.ID,
-		Username: createdUser.Username,
-	}
-
 	w.WriteHeader(http.StatusCreated)
-	err = json.NewEncoder(w).Encode(userSchemaResp)
+	err = json.NewEncoder(w).Encode(createdUser)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
