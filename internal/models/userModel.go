@@ -8,4 +8,6 @@ type User struct {
 	PasswordHash string    `gorm:"not null"`
 	SecretWord   string    `gorm:"not null"`
 	CreatedAt    time.Time `gorm:"autoCreateTime"`
+
+	Collections []Collection
 }

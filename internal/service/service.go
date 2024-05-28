@@ -10,12 +10,18 @@ type Authorization interface {
 	SignIn(userSchema *schemas.SignInReq) (*schemas.SignInResp, error)
 }
 
-type Service struct {
-	Authorization
+type Collection interface {
+	CreateCollection(collectionSchema *schemas.CreateCollectionReq, userID int) (*schemas.CreateCollectionResp, error)
 }
 
-func NewService(repo repository.UserRepository) *Service {
+type Service struct {
+	Authorization
+	Collection
+}
+
+func NewService(repos *repository.Repository) *Service {
 	return &Service{
-		Authorization: NewUserService(repo),
+		Authorization: NewUserService(repos.UserRepository),
+		Collection:    NewCollectionService(repos.CollectionRepository),
 	}
 }

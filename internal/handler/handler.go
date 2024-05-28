@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"back/internal/middleware"
 	"back/internal/service"
 	"back/internal/util"
 	"github.com/go-chi/chi/v5"
@@ -24,6 +25,14 @@ func (h *Handler) InitRoutes() *chi.Mux {
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/signup", h.signUp)
 		r.Post("/login", h.signIn)
+	})
+
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.UserIdentity)
+		r.Route("/collections", func(r chi.Router) {
+			r.Post("/", h.createCollection)
+		})
+
 	})
 
 	return r
