@@ -6,7 +6,6 @@ import (
 	"back/internal/schemas"
 	"back/internal/util"
 	"errors"
-	"fmt"
 	"gorm.io/gorm"
 	"time"
 )
@@ -44,7 +43,5 @@ func (s *UserServiceImpl) CreateUser(userSchema *schemas.CreateUserReq) (*models
 		return nil, err
 	}
 
-	fmt.Println(createdUser.ID)
-	fmt.Println(createdUser.Username)
 	return createdUser, nil
 }
