@@ -18,7 +18,7 @@ func NewUserService(repo repository.UserRepository) *UserServiceImpl {
 	return &UserServiceImpl{repo: repo}
 }
 
-func (s *UserServiceImpl) CreateUser(userSchema *schemas.CreateUserReq) (*models.User, error) {
+func (s *UserServiceImpl) CreateUser(userSchema *schemas.CreateUserReq) (*schemas.CreateUserResp, error) {
 	existingUser, err := s.repo.GetUserByUsername(userSchema.Username)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
@@ -43,5 +43,10 @@ func (s *UserServiceImpl) CreateUser(userSchema *schemas.CreateUserReq) (*models
 		return nil, err
 	}
 
-	return createdUser, nil
+	userSchemaResp := schemas.CreateUserResp{
+		ID:       createdUser.ID,
+		Username: createdUser.Username,
+	}
+
+	return &userSchemaResp, nil
 }
