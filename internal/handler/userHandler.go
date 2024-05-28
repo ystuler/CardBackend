@@ -30,6 +30,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(w).Encode(createdUser)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 
