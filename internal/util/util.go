@@ -1,8 +1,10 @@
 package util
 
 import (
+	"encoding/json"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
+	"net/http"
 )
 
 func HashPassword(password string) (string, error) {
@@ -16,4 +18,12 @@ func HashPassword(password string) (string, error) {
 
 func CheckPassword(password string, hashedPassword string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+}
+
+func DecodeJSON(w http.ResponseWriter, r *http.Request, schema interface{}) error {
+	if err := json.NewDecoder(r.Body).Decode(schema); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return err
+	}
+	return nil
 }
