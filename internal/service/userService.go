@@ -6,7 +6,6 @@ import (
 	"back/internal/schemas"
 	"back/internal/util"
 	"errors"
-	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 	"time"
 )
@@ -17,38 +16,6 @@ type UserServiceImpl struct {
 
 func NewUserService(repo repository.UserRepository) *UserServiceImpl {
 	return &UserServiceImpl{repo: repo}
-}
-
-const signingKey = "mySecret"
-
-func (s *UserServiceImpl) generateJWT(userModel *models.User) (string, error) {
-	claims := &jwt.RegisteredClaims{
-		Subject:   userModel.Username,
-		IssuedAt:  jwt.NewNumericDate(time.Now()),
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(signingKey))
-}
-
-func (s *UserServiceImpl) parseToken(accessToken string) (*jwt.RegisteredClaims, error) {
-	token, err := jwt.ParseWithClaims(accessToken, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("unexpected signing method")
-		}
-		return []byte(signingKey), nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	if claims, ok := token.Claims.(*jwt.RegisteredClaims); ok && token.Valid {
-		return claims, nil
-	}
-
-	return nil, errors.New("invalid token")
 }
 
 func (s *UserServiceImpl) CreateUser(userSchema *schemas.CreateUserReq) (*schemas.CreateUserResp, error) {
@@ -95,7 +62,7 @@ func (s *UserServiceImpl) SignIn(userSchema *schemas.SignInReq) (*schemas.SignIn
 		return nil, errors.New("password does not match")
 	}
 
-	generatedJWT, err := s.generateJWT(existingUser)
+	generatedJWT, err := util.GenerateJWT(existingUser)
 	if err != nil {
 		return nil, err
 	}
