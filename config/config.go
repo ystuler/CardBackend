@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"log"
+	"strings"
 )
 
 type Config struct {
@@ -34,6 +35,11 @@ func NewConfig() *Config {
 	viper.SetDefault("database.password", "root")
 	viper.SetDefault("database.dbname", "memoryCards")
 	viper.SetDefault("database.sslmode", "disable")
+
+	// Для установки переменных окружения необходимо использовать такой стиль, как `APP_SERVER_PORT="8000"`
+	viper.SetEnvPrefix("app")
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
