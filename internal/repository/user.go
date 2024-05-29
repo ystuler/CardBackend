@@ -27,3 +27,5 @@ func (r *UserRepositoryImpl) GetUserByUsername(username string) (*models.User, e
 	}
 	return &user, nil
 }
+
+//todo rename file to userRepository

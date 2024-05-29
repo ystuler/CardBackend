@@ -19,3 +19,19 @@ func (r *CollectionRepositoryImpl) CreateCollection(collection *models.Collectio
 	}
 	return collection, nil
 }
+
+func (r *CollectionRepositoryImpl) GetCollectionByID(id int) (*models.Collection, error) {
+	var collection models.Collection
+	if err := r.db.First(&collection, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+	return &collection, nil
+}
+
+func (r *CollectionRepositoryImpl) UpdateCollection(collection *models.Collection) (*models.Collection, error) {
+	result := r.db.Model(collection).Updates(collection)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return collection, nil
+}

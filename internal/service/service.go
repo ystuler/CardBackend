@@ -12,6 +12,7 @@ type Authorization interface {
 
 type Collection interface {
 	CreateCollection(collectionSchema *schemas.CreateCollectionReq, userID int) (*schemas.CreateCollectionResp, error)
+	UpdateCollection(collectionSchema *schemas.UpdateCollectionReq, userID int) (*schemas.UpdateCollectionResp, error)
 }
 
 type Service struct {
