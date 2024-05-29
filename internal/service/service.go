@@ -6,16 +6,23 @@ import (
 )
 
 type Authorization interface {
-	CreateUser(userSchema *schemas.CreateUserReq) (*schemas.CreateUserResp, error)
+	SignUp(userSchema *schemas.CreateUserReq) (*schemas.CreateUserResp, error)
 	SignIn(userSchema *schemas.SignInReq) (*schemas.SignInResp, error)
+}
+
+type Collection interface {
+	CreateCollection(collectionSchema *schemas.CreateCollectionReq, userID int) (*schemas.CreateCollectionResp, error)
+	UpdateCollection(collectionSchema *schemas.UpdateCollectionReq, userID int) (*schemas.UpdateCollectionResp, error)
 }
 
 type Service struct {
 	Authorization
+	Collection
 }
 
-func NewService(repo repository.UserRepository) *Service {
+func NewService(repos *repository.Repository) *Service {
 	return &Service{
-		Authorization: NewUserService(repo),
+		Authorization: NewAuthService(repos.UserRepository),
+		Collection:    NewCollectionService(repos.CollectionRepository),
 	}
 }
