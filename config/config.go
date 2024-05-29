@@ -57,3 +57,7 @@ func (dbConfig *DatabaseConfig) DSN() string {
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		dbConfig.Host, dbConfig.Port, dbConfig.User, dbConfig.Password, dbConfig.DBName, dbConfig.SSLMode)
 }
+
+func (dbConfig *DatabaseConfig) GetADDR() string {
+	return fmt.Sprintf("%s:%s", dbConfig.Host, dbConfig.Port)
+}
