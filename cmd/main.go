@@ -1,6 +1,7 @@
 package main
 
 import (
+	"back/config"
 	"back/db"
 	"back/internal/handler"
 	"back/internal/repository"
@@ -11,7 +12,9 @@ import (
 )
 
 func main() {
-	database, err := db.NewDatabase()
+	cfg := config.NewConfig()
+
+	database, err := db.NewDatabase(cfg.Database.DSN())
 	if err != nil {
 		log.Fatalf("could not initialize database connection: %s", err)
 	}
@@ -23,6 +26,7 @@ func main() {
 	handlers := handler.NewHandler(services, validator)
 	r := handlers.InitRoutes()
 
-	log.Print("Listening on port 8000")
-	http.ListenAndServe(":8000", r)
+	serverAddr := cfg.Server.GetADDR()
+	log.Print("Listening server on ", serverAddr)
+	http.ListenAndServe(serverAddr, r)
 }
