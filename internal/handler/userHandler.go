@@ -20,7 +20,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	createdUser, err := h.services.CreateUser(&userSchemaReq)
+	createdUser, err := h.services.SignUp(&userSchemaReq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

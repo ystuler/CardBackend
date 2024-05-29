@@ -6,7 +6,7 @@ import (
 )
 
 type Authorization interface {
-	CreateUser(userSchema *schemas.CreateUserReq) (*schemas.CreateUserResp, error)
+	SignUp(userSchema *schemas.CreateUserReq) (*schemas.CreateUserResp, error)
 	SignIn(userSchema *schemas.SignInReq) (*schemas.SignInResp, error)
 }
 
@@ -21,7 +21,7 @@ type Service struct {
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
-		Authorization: NewUserService(repos.UserRepository),
+		Authorization: NewAuthService(repos.UserRepository),
 		Collection:    NewCollectionService(repos.CollectionRepository),
 	}
 }

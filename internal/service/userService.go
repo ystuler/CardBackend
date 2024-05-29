@@ -10,15 +10,15 @@ import (
 	"time"
 )
 
-type UserServiceImpl struct {
+type AuthenticationImpl struct {
 	repo repository.UserRepository
 }
 
-func NewUserService(repo repository.UserRepository) *UserServiceImpl {
-	return &UserServiceImpl{repo: repo}
+func NewAuthService(repo repository.UserRepository) *AuthenticationImpl {
+	return &AuthenticationImpl{repo: repo}
 }
 
-func (s *UserServiceImpl) CreateUser(userSchema *schemas.CreateUserReq) (*schemas.CreateUserResp, error) {
+func (s *AuthenticationImpl) SignUp(userSchema *schemas.CreateUserReq) (*schemas.CreateUserResp, error) {
 	existingUser, err := s.repo.GetUserByUsername(userSchema.Username)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
@@ -51,7 +51,7 @@ func (s *UserServiceImpl) CreateUser(userSchema *schemas.CreateUserReq) (*schema
 	return &userSchemaResp, nil
 }
 
-func (s *UserServiceImpl) SignIn(userSchema *schemas.SignInReq) (*schemas.SignInResp, error) {
+func (s *AuthenticationImpl) SignIn(userSchema *schemas.SignInReq) (*schemas.SignInResp, error) {
 	existingUser, err := s.repo.GetUserByUsername(userSchema.Username)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.New("user not found")
