@@ -5,6 +5,7 @@ import (
 	"back/internal/service"
 	"back/internal/util"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"net/http"
 )
 
@@ -19,6 +20,14 @@ func NewHandler(services *service.Service, validator *util.Validator) *Handler {
 
 func (h *Handler) InitRoutes() *chi.Mux {
 	r := chi.NewRouter()
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300,
+	}))
 
 	//todo swagger
 	r.Get("/swagger", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("todo")) })
