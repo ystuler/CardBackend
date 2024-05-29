@@ -62,3 +62,5 @@ func (s *CollectionServiceImpl) UpdateCollection(collectionSchema *schemas.Updat
 	}
 	return &updatedCollection, nil
 }
+
+//todo удаление коллекции (cascade)
