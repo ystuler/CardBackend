@@ -5,6 +5,7 @@ import (
 	"back/internal/service"
 	"back/internal/util"
 	"github.com/go-chi/chi/v5"
+	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"net/http"
 )
@@ -20,6 +21,8 @@ func NewHandler(services *service.Service, validator *util.Validator) *Handler {
 
 func (h *Handler) InitRoutes() *chi.Mux {
 	r := chi.NewRouter()
+	r.Use(chiMiddleware.Logger)
+	r.Use(chiMiddleware.Recoverer)
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
