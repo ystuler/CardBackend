@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/spf13/viper"
 	"log"
 )
@@ -16,13 +17,23 @@ type ServerConfig struct {
 }
 
 type DatabaseConfig struct {
-	DSN string
+	Host     string
+	Port     string
+	User     string
+	Password string
+	DBName   string
+	SSLMode  string
 }
 
 func NewConfig() *Config {
 	viper.SetDefault("server.ip", "localhost")
 	viper.SetDefault("server.port", "8000")
-	viper.SetDefault("database.dsn", "user=admin password=root dbname=memoryCards sslmode=disable")
+	viper.SetDefault("database.host", "localhost")
+	viper.SetDefault("database.port", "5432")
+	viper.SetDefault("database.user", "admin")
+	viper.SetDefault("database.password", "root")
+	viper.SetDefault("database.dbname", "memoryCards")
+	viper.SetDefault("database.sslmode", "disable")
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
@@ -40,4 +51,9 @@ func NewConfig() *Config {
 	}
 
 	return &config
+}
+
+func (dbConfig *DatabaseConfig) DSN() string {
+	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		dbConfig.Host, dbConfig.Port, dbConfig.User, dbConfig.Password, dbConfig.DBName, dbConfig.SSLMode)
 }
