@@ -20,6 +20,7 @@ func NewHandler(services *service.Service, validator *util.Validator) *Handler {
 func (h *Handler) InitRoutes() *chi.Mux {
 	r := chi.NewRouter()
 
+	//todo swagger
 	r.Get("/swagger", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("todo")) })
 
 	r.Route("/auth", func(r chi.Router) {
@@ -27,13 +28,10 @@ func (h *Handler) InitRoutes() *chi.Mux {
 		r.Post("/login", h.signIn)
 	})
 
-	r.Group(func(r chi.Router) {
+	r.Route("/collections", func(r chi.Router) {
 		r.Use(middleware.UserIdentity)
-		r.Route("/collections", func(r chi.Router) {
-			r.Post("/", h.createCollection)
-			r.Put("/", h.editCollection)
-		})
-
+		r.Post("/", h.createCollection)
+		r.Put("/", h.editCollection)
 	})
 
 	return r
