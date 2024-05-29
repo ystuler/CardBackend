@@ -24,6 +24,7 @@ type DatabaseConfig struct {
 	Password string
 	DBName   string
 	SSLMode  string
+	Timezone string
 }
 
 func NewConfig() *Config {
@@ -60,8 +61,8 @@ func NewConfig() *Config {
 }
 
 func (dbConfig *DatabaseConfig) DSN() string {
-	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		dbConfig.Host, dbConfig.Port, dbConfig.User, dbConfig.Password, dbConfig.DBName, dbConfig.SSLMode)
+	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s timezone=%s",
+		dbConfig.Host, dbConfig.Port, dbConfig.User, dbConfig.Password, dbConfig.DBName, dbConfig.SSLMode, dbConfig.Timezone)
 }
 
 func (srvConfig *ServerConfig) GetADDR() string {
