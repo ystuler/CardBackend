@@ -3,6 +3,7 @@ package handler
 import (
 	"back/internal/middleware"
 	"back/internal/schemas"
+	"back/internal/util"
 	"encoding/json"
 	"net/http"
 )
@@ -10,8 +11,9 @@ import (
 func (h *Handler) createCollection(w http.ResponseWriter, r *http.Request) {
 	var collectionSchemaReq schemas.CreateCollectionReq
 
-	if err := json.NewDecoder(r.Body).Decode(&collectionSchemaReq); err != nil {
+	if err := util.DecodeJSON(w, r, &collectionSchemaReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	if err := h.validator.Validate(&collectionSchemaReq); err != nil {
@@ -42,7 +44,7 @@ func (h *Handler) createCollection(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) editCollection(w http.ResponseWriter, r *http.Request) {
 	var updatedCollectionSchema schemas.UpdateCollectionReq
 
-	if err := json.NewDecoder(r.Body).Decode(&updatedCollectionSchema); err != nil {
+	if err := util.DecodeJSON(w, r, &updatedCollectionSchema); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
