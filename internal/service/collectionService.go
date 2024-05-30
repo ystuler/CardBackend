@@ -76,3 +76,27 @@ func (s *CollectionServiceImpl) RemoveCollection(collectionSchema *schemas.Remov
 	}
 	return nil
 }
+
+func (s *CollectionServiceImpl) GetAllCollections(userID int) (*schemas.AllCollectionsResp, error) {
+	allCollections, err := s.repo.GetAllCollections(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	collections := make([]schemas.AllCollections, len(*allCollections))
+	for i, collection := range *allCollections {
+		collections[i] = schemas.AllCollections{
+			ID:          collection.ID,
+			Name:        collection.Name,
+			Description: *collection.Description,
+			CreatedAt:   collection.CreatedAt,
+		}
+	}
+
+	resp := &schemas.AllCollectionsResp{
+		Collections: collections,
+	}
+
+	return resp, nil
+
+}

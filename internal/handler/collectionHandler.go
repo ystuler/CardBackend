@@ -5,7 +5,10 @@ import (
 	"back/internal/schemas"
 	"back/internal/util"
 	"encoding/json"
+	"github.com/go-chi/chi/v5"
+	"log"
 	"net/http"
+	"strconv"
 )
 
 func (h *Handler) createCollection(w http.ResponseWriter, r *http.Request) {
@@ -49,6 +52,12 @@ func (h *Handler) editCollection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	collectionID, err := strconv.Atoi(chi.URLParam(r, "collectionID"))
+	if err != nil {
+		http.Error(w, "id must be an integer", http.StatusBadRequest)
+	}
+	updatedCollectionSchema.ID = collectionID
+
 	if err := h.validator.Validate(&updatedCollectionSchema); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -82,15 +91,41 @@ func (h *Handler) removeCollection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	collectionID, err := strconv.Atoi(chi.URLParam(r, "collectionID"))
+	if err != nil {
+		http.Error(w, "id must be an integer", http.StatusBadRequest)
+	}
+	removedCollectionSchema.ID = collectionID
+
 	if err := h.validator.Validate(&removedCollectionSchema); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err := h.services.RemoveCollection(&removedCollectionSchema)
+	err = h.services.RemoveCollection(&removedCollectionSchema)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *Handler) getAllCollections(w http.ResponseWriter, r *http.Request) {
+
+	userID, err := middleware.GetUserId(r.Context())
+	log.Println("You're ", userID)
+
+	allCollections, err := h.services.GetAllCollections(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(allCollections)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 }

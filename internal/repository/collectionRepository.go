@@ -42,3 +42,11 @@ func (r *CollectionRepositoryImpl) RemoveCollection(collection *models.Collectio
 	}
 	return nil
 }
+
+func (r *CollectionRepositoryImpl) GetAllCollections(userID int) (*[]models.Collection, error) {
+	var collections []models.Collection
+	if err := r.db.Where("user_id = ?", userID).Find(&collections).Error; err != nil {
+		return nil, err
+	}
+	return &collections, nil
+}
