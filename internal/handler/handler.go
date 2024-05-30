@@ -42,6 +42,7 @@ func (h *Handler) InitRoutes() *chi.Mux {
 
 	r.Route("/collections", func(r chi.Router) {
 		r.Use(middleware.UserIdentity)
+		r.Get("/", h.getAllCollections)
 		r.Post("/", h.createCollection)
 
 		r.Route("/{collectionID}", func(r chi.Router) {

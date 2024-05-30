@@ -32,3 +32,17 @@ type UpdateCollectionResp struct {
 type RemoveCollectionReq struct {
 	ID int `validate:"required,gt=0"`
 }
+
+type AllCollectionsReq struct {
+	ID int `validate:"required,gt=0"`
+}
+type AllCollections struct {
+	ID          int       `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
+type AllCollectionsResp struct {
+	Collections []AllCollections `json:"collections"`
+}

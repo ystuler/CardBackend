@@ -6,6 +6,7 @@ import (
 	"back/internal/util"
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -107,4 +108,24 @@ func (h *Handler) removeCollection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *Handler) getAllCollections(w http.ResponseWriter, r *http.Request) {
+
+	userID, err := middleware.GetUserId(r.Context())
+	log.Println("You're ", userID)
+
+	allCollections, err := h.services.GetAllCollections(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(allCollections)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 }

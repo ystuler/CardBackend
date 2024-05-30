@@ -14,6 +14,7 @@ type Collection interface {
 	CreateCollection(collectionSchema *schemas.CreateCollectionReq, userID int) (*schemas.CreateCollectionResp, error)
 	UpdateCollection(collectionSchema *schemas.UpdateCollectionReq, userID int) (*schemas.UpdateCollectionResp, error)
 	RemoveCollection(collectionSchema *schemas.RemoveCollectionReq) error
+	GetAllCollections(userID int) (*schemas.AllCollectionsResp, error)
 }
 
 type Service struct {
