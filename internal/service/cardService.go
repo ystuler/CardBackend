@@ -62,3 +62,15 @@ func (s *CardServiceImpl) UpdateCard(cardSchema *schemas.UpdateCardReq) (*schema
 	}
 	return &updatedCard, nil
 }
+
+func (s *CardServiceImpl) RemoveCard(cardSchema *schemas.RemoveCardReq) error {
+	card, err := s.repo.GetCardByID(cardSchema.ID)
+	if err != nil {
+		return err
+	}
+	err = s.repo.RemoveCard(card)
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -28,7 +28,7 @@ func (r *CardRepositoryImpl) UpdateCard(card *models.Card) (*models.Card, error)
 	return card, nil
 }
 
-func (r *CardRepositoryImpl) DeleteCard(card *models.Card) error {
+func (r *CardRepositoryImpl) RemoveCard(card *models.Card) error {
 	if err := r.db.Delete(&card).Error; err != nil {
 		return err
 	}

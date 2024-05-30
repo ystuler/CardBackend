@@ -19,7 +19,7 @@ type CollectionRepository interface {
 type CardRepository interface {
 	CreateCard(card *models.Card) (*models.Card, error)
 	UpdateCard(card *models.Card) (*models.Card, error)
-	DeleteCard(card *models.Card) error
+	RemoveCard(card *models.Card) error
 	GetAllCards() ([]models.Card, error)
 	GetCardByID(cardID int) (*models.Card, error)
 	GetCardsByCollectionID(collectionID int) ([]models.Card, error)

@@ -67,3 +67,24 @@ func (h *Handler) editCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (h *Handler) removeCard(w http.ResponseWriter, r *http.Request) {
+	var removedCardSchemaReq schemas.RemoveCardReq
+
+	if err := util.DecodeJSON(w, r, &removedCardSchemaReq); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := h.validator.Validate(&removedCardSchemaReq); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err := h.services.RemoveCard(&removedCardSchemaReq)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusAccepted)
+}

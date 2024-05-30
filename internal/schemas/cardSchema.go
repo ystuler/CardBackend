@@ -24,3 +24,7 @@ type UpdateCardResp struct {
 	Answer       string `json:"answer"`
 	CollectionID int    `json:"collection_id"`
 }
+
+type RemoveCardReq struct {
+	ID int `json:"id" validate:"required"`
+}
