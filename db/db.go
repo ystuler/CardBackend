@@ -12,8 +12,7 @@ type Database struct {
 	db *gorm.DB
 }
 
-func NewDatabase() (*Database, error) {
-	dsn := "host=localhost user=postgres password=1234 dbname=pasteboards port=5432 sslmode=disable timezone=Europe/Moscow"
+func NewDatabase(dsn string) (*Database, error) {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
