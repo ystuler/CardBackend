@@ -13,9 +13,9 @@ type CreateCardResp struct {
 }
 
 type UpdateCardReq struct {
-	ID       int    `json:"id" validate:"required"`
-	Question string `json:"question,omitempty"`
-	Answer   string `json:"answer,omitempty"`
+	ID       int     `json:"id" validate:"required"`
+	Question *string `json:"question,omitempty"`
+	Answer   *string `json:"answer,omitempty"`
 }
 
 type UpdateCardResp struct {
