@@ -2,6 +2,8 @@ package schemas
 
 import "time"
 
+//todo у id может быть только положительные id, поэтоум заменить на uint
+
 type CreateCollectionReq struct {
 	Name        string `json:"name" validate:"required"`
 	Description string `json:"description,omitempty"`
@@ -25,4 +27,8 @@ type UpdateCollectionResp struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"createdAt"`
+}
+
+type RemoveCollectionReq struct {
+	ID int `json:"id" validate:"required"`
 }

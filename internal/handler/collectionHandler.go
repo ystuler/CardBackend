@@ -73,3 +73,24 @@ func (h *Handler) editCollection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (h *Handler) removeCollection(w http.ResponseWriter, r *http.Request) {
+	var removedCollectionSchema schemas.RemoveCollectionReq
+
+	if err := util.DecodeJSON(w, r, &removedCollectionSchema); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := h.validator.Validate(&removedCollectionSchema); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err := h.services.RemoveCollection(&removedCollectionSchema)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}

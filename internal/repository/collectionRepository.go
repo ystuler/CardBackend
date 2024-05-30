@@ -35,3 +35,10 @@ func (r *CollectionRepositoryImpl) UpdateCollection(collection *models.Collectio
 	}
 	return collection, nil
 }
+
+func (r *CollectionRepositoryImpl) RemoveCollection(collection *models.Collection) error {
+	if err := r.db.Delete(&collection).Error; err != nil {
+		return err
+	}
+	return nil
+}
