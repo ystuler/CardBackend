@@ -44,6 +44,7 @@ func (h *Handler) InitRoutes() *chi.Mux {
 		r.Use(middleware.UserIdentity)
 		r.Post("/", h.createCollection)
 		r.Put("/", h.editCollection)
+		r.Delete("/", h.removeCollection)
 	})
 
 	return r

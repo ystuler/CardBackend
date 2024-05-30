@@ -14,6 +14,7 @@ type CollectionRepository interface {
 	CreateCollection(collection *models.Collection) (*models.Collection, error)
 	GetCollectionByID(id int) (*models.Collection, error)
 	UpdateCollection(collection *models.Collection) (*models.Collection, error)
+	RemoveCollection(collection *models.Collection) error
 }
 
 type Repository struct {
