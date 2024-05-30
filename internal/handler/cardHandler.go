@@ -42,3 +42,28 @@ func (h *Handler) createCard(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+func (h *Handler) editCard(w http.ResponseWriter, r *http.Request) {
+	var updatedCardSchemaReq schemas.UpdateCardReq
+
+	if err := util.DecodeJSON(w, r, &updatedCardSchemaReq); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := h.validator.Validate(&updatedCardSchemaReq); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	updatedCard, err := h.services.UpdateCard(&updatedCardSchemaReq)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusAccepted)
+	if err := json.NewEncoder(w).Encode(updatedCard); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
