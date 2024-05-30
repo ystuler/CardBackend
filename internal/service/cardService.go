@@ -74,3 +74,20 @@ func (s *CardServiceImpl) RemoveCard(cardSchema *schemas.RemoveCardReq) error {
 	}
 	return nil
 }
+
+func (s *CardServiceImpl) GetCardsByCollectionID(collectionID int) ([]schemas.Card, error) {
+	cards, err := s.repo.GetCardsByCollectionID(collectionID)
+	if err != nil {
+		return nil, err
+	}
+	var result []schemas.Card
+	for _, card := range cards {
+		result = append(result, schemas.Card{
+			ID:       card.ID,
+			Question: card.Question,
+			Answer:   card.Answer,
+		})
+	}
+
+	return result, nil
+}
