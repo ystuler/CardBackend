@@ -51,10 +51,19 @@ func (h *Handler) editCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cardIDStr := chi.URLParam(r, "cardID")
+	cardID, err := strconv.Atoi(cardIDStr)
+	if err != nil {
+		http.Error(w, "Invalid card ID", http.StatusBadRequest)
+		return
+	}
+
 	if err := h.validator.Validate(&updatedCardSchemaReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	updatedCardSchemaReq.ID = cardID
 
 	updatedCard, err := h.services.UpdateCard(&updatedCardSchemaReq)
 	if err != nil {
@@ -76,15 +85,60 @@ func (h *Handler) removeCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cardIDStr := chi.URLParam(r, "cardID")
+	cardID, err := strconv.Atoi(cardIDStr)
+	if err != nil {
+		http.Error(w, "Invalid card ID", http.StatusBadRequest)
+		return
+	}
+
 	if err := h.validator.Validate(&removedCardSchemaReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err := h.services.RemoveCard(&removedCardSchemaReq)
+	removedCardSchemaReq.ID = cardID
+
+	err = h.services.RemoveCard(&removedCardSchemaReq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// Отправляем успешный ответ
 	w.WriteHeader(http.StatusAccepted)
+	w.Write([]byte("Card successfully removed"))
+}
+
+func (h *Handler) getCardsByCollectionID(w http.ResponseWriter, r *http.Request) {
+	//var CardsSchemaReq schemas.Card
+	//
+	//if err := util.DecodeJSON(w, r, &CardsSchemaReq); err != nil {
+	//	http.Error(w, err.Error(), http.StatusBadRequest)
+	//	return
+	//}
+
+	collectionIDStr := chi.URLParam(r, "collectionID")
+	collectionID, err := strconv.Atoi(collectionIDStr)
+	if err != nil {
+		http.Error(w, "Invalid collection ID", http.StatusBadRequest)
+		return
+	}
+
+	//if err := h.validator.Validate(&CardsSchemaReq); err != nil {
+	//	http.Error(w, err.Error(), http.StatusBadRequest)
+	//	return
+	//}
+
+	cards, err := h.services.GetCardsByCollectionID(collectionID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusAccepted)
+	if err := json.NewEncoder(w).Encode(cards); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
