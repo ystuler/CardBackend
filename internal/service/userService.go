@@ -43,7 +43,13 @@ func (s *AuthenticationImpl) SignUp(userSchema *schemas.CreateUserReq) (*schemas
 		return nil, err
 	}
 
+	generatedJWT, err := util.GenerateJWT(createdUser)
+	if err != nil {
+		return nil, err
+	}
+
 	userSchemaResp := schemas.CreateUserResp{
+		Token:    generatedJWT,
 		ID:       createdUser.ID,
 		Username: createdUser.Username,
 	}
