@@ -17,7 +17,7 @@ type CreateCollectionResp struct {
 }
 
 type UpdateCollectionReq struct {
-	ID          int    `json:"id" validate:"required"`
+	ID          int    `validate:"required,gt=0"`
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`
 }
@@ -30,5 +30,5 @@ type UpdateCollectionResp struct {
 }
 
 type RemoveCollectionReq struct {
-	ID int `json:"id" validate:"required"`
+	ID int `validate:"required,gt=0"`
 }
