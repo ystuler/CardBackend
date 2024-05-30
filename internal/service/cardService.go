@@ -35,3 +35,25 @@ func (s *CardServiceImpl) CreateCard(cardSchema *schemas.CreateCardReq, collecti
 
 	return cardResp, nil
 }
+
+func (s *CardServiceImpl) UpdateCard(cardSchema *schemas.UpdateCardReq) (*schemas.UpdateCardResp, error) {
+	card, err := s.repo.GetCardByID(cardSchema.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	card.Question = cardSchema.Question
+	card.Answer = cardSchema.Answer
+
+	newCard, err := s.repo.UpdateCard(card)
+	if err != nil {
+		return nil, err
+	}
+	updatedCard := schemas.UpdateCardResp{
+		ID:           newCard.ID,
+		Question:     newCard.Question,
+		Answer:       newCard.Answer,
+		CollectionID: newCard.CollectionID,
+	}
+	return &updatedCard, nil
+}
