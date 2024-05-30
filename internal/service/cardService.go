@@ -42,8 +42,13 @@ func (s *CardServiceImpl) UpdateCard(cardSchema *schemas.UpdateCardReq) (*schema
 		return nil, err
 	}
 
-	card.Question = cardSchema.Question
-	card.Answer = cardSchema.Answer
+	if cardSchema.Question != nil {
+		card.Question = *cardSchema.Question
+	}
+
+	if cardSchema.Answer != nil {
+		card.Answer = *cardSchema.Answer
+	}
 
 	newCard, err := s.repo.UpdateCard(card)
 	if err != nil {
