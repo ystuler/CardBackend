@@ -30,11 +30,9 @@ func (s *AuthenticationImpl) SignUp(userSchema *schemas.CreateUserReq) (*schemas
 
 	hashedPassword, err := util.HashPassword(userSchema.Password)
 
-	//todo create secret word
 	user := &models.User{
 		Username:     userSchema.Username,
 		PasswordHash: hashedPassword,
-		SecretWord:   "",
 		CreatedAt:    time.Time{},
 	}
 
