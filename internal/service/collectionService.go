@@ -4,6 +4,7 @@ import (
 	"back/internal/models"
 	"back/internal/repository"
 	"back/internal/schemas"
+	"math/rand"
 	"time"
 )
 
@@ -99,4 +100,30 @@ func (s *CollectionServiceImpl) GetAllCollections(userID int) (*schemas.AllColle
 
 	return resp, nil
 
+}
+
+func (s *CollectionServiceImpl) TrainCards(req *schemas.TrainSchemaReq) (*schemas.TrainSchemaResp, error) {
+	cards, err := s.repo.GetAllCardsByCollectionID(req.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	cardsSlice := *cards
+
+	rand.Shuffle(len(cardsSlice), func(i, j int) {
+		cardsSlice[i], cardsSlice[j] = cardsSlice[j], cardsSlice[i]
+	})
+
+	randCardSchema := make([]schemas.CardsByCollectionID, len(cardsSlice))
+	for i, card := range cardsSlice {
+		randCardSchema[i] = schemas.CardsByCollectionID{
+			ID:       card.ID,
+			Question: card.Question,
+			Answer:   card.Answer,
+		}
+	}
+
+	resp := schemas.TrainSchemaResp{Cards: randCardSchema}
+
+	return &resp, nil
 }

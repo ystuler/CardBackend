@@ -46,3 +46,11 @@ type AllCollections struct {
 type AllCollectionsResp struct {
 	Collections []AllCollections `json:"collections"`
 }
+
+type TrainSchemaReq struct {
+	ID int `validate:"required,gt=0"`
+}
+
+type TrainSchemaResp struct {
+	Cards []CardsByCollectionID `json:"cards"`
+}

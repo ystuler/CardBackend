@@ -15,6 +15,7 @@ type Collection interface {
 	UpdateCollection(collectionSchema *schemas.UpdateCollectionReq, userID int) (*schemas.UpdateCollectionResp, error)
 	RemoveCollection(collectionSchema *schemas.RemoveCollectionReq) error
 	GetAllCollections(userID int) (*schemas.AllCollectionsResp, error)
+	TrainCards(req *schemas.TrainSchemaReq) (*schemas.TrainSchemaResp, error)
 }
 
 type Card interface {

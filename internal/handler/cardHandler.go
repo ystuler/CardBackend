@@ -103,7 +103,7 @@ func (h *Handler) removeCard(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) getCardsByCollectionID(w http.ResponseWriter, r *http.Request) {
-
+	//todo add collection_id in return
 	collectionIDStr := chi.URLParam(r, "collectionID")
 	collectionID, err := strconv.Atoi(collectionIDStr)
 	if err != nil {

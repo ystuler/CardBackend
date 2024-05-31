@@ -50,3 +50,11 @@ func (r *CollectionRepositoryImpl) GetAllCollections(userID int) (*[]models.Coll
 	}
 	return &collections, nil
 }
+
+func (r *CollectionRepositoryImpl) GetAllCardsByCollectionID(collectionID int) (*[]models.Card, error) {
+	var cards []models.Card
+	if err := r.db.Where("collection_id = ?", collectionID).Find(&cards).Error; err != nil {
+		return nil, err
+	}
+	return &cards, nil
+}
