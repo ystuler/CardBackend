@@ -43,6 +43,12 @@ func (h *Handler) InitRoutes() *chi.Mux {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.UserIdentity)
 
+		r.Route("/profile", func(r chi.Router) {
+			r.Get("/", h.getProfile)
+			r.Put("/username", h.updateUsername)
+			r.Put("/password", h.updatePassword)
+		})
+
 		r.Route("/collections", func(r chi.Router) {
 			r.Get("/", h.getAllCollections)
 			r.Post("/", h.createCollection)

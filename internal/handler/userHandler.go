@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"back/internal/middleware"
 	"back/internal/schemas"
 	"back/internal/util"
 	"encoding/json"
@@ -59,4 +60,83 @@ func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func (h *Handler) getProfile(w http.ResponseWriter, r *http.Request) {
+	userID, err := middleware.GetUserId(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	resp, err := h.services.GetProfile(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(resp)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *Handler) updateUsername(w http.ResponseWriter, r *http.Request) {
+	var updateUsernameReq schemas.UpdateUsernameReq
+
+	userID, err := middleware.GetUserId(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	updateUsernameReq.ID = userID
+
+	if err := util.DecodeJSON(w, r, &updateUsernameReq); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := h.validator.Validate(&updateUsernameReq); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	resp, err := h.services.UpdateUsername(&updateUsernameReq)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (h *Handler) updatePassword(w http.ResponseWriter, r *http.Request) {
+	var updatePasswordReq schemas.UpdatePasswordReq
+	userID, err := middleware.GetUserId(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	updatePasswordReq.ID = userID
+
+	if err := util.DecodeJSON(w, r, &updatePasswordReq); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if err := h.validator.Validate(&updatePasswordReq); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if err := h.services.UpdatePassword(&updatePasswordReq); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }

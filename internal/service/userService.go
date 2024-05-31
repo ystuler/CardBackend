@@ -87,3 +87,54 @@ func (s *AuthenticationImpl) SignIn(userSchema *schemas.SignInReq) (*schemas.Sig
 
 	return &userSchemaResp, nil
 }
+
+func (s *AuthenticationImpl) GetProfile(userID int) (*schemas.GetProfileResp, error) {
+	user, err := s.repo.GetUserById(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	profile := schemas.Profile{
+		ID:       user.ID,
+		Username: user.Username,
+	}
+
+	return &schemas.GetProfileResp{Profile: profile}, nil
+}
+
+func (s *AuthenticationImpl) UpdateUsername(usernameSchema *schemas.UpdateUsernameReq) (*schemas.UpdateUsernameResp, error) {
+	user, err := s.repo.GetUserById(usernameSchema.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	user.Username = usernameSchema.Username
+
+	updatedUser, err := s.repo.UpdateUser(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &schemas.UpdateUsernameResp{ID: updatedUser.ID, Username: updatedUser.Username}, nil
+}
+
+func (s *AuthenticationImpl) UpdatePassword(passwordSchema *schemas.UpdatePasswordReq) error {
+	user, err := s.repo.GetUserById(passwordSchema.ID)
+	if err != nil {
+		return err
+	}
+
+	if err := util.CheckPassword(passwordSchema.OldPassword, user.PasswordHash); err != nil {
+		return errors.New("old password does not match")
+	}
+
+	hashedPassword, err := util.HashPassword(passwordSchema.NewPassword)
+	if err != nil {
+		return err
+	}
+
+	user.PasswordHash = hashedPassword
+
+	_, err = s.repo.UpdateUser(user)
+	return err
+}
