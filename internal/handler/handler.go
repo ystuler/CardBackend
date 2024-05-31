@@ -40,8 +40,9 @@ func (h *Handler) InitRoutes() *chi.Mux {
 		r.Post("/login", h.signIn)
 	})
 	r.Route("/profile", func(r chi.Router) {
-		r.Use(middleware.UserIdentity) // Добавляем middleware для аутентификации
+		r.Use(middleware.UserIdentity)
 		r.Get("/", h.getProfile)
+		r.Put("/", h.updateUsername)
 	})
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.UserIdentity)

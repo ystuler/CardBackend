@@ -82,3 +82,34 @@ func (h *Handler) getProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (h *Handler) updateUsername(w http.ResponseWriter, r *http.Request) {
+	userID, err := middleware.GetUserId(r.Context())
+	var updateUsernameReq schemas.UpdateUsernameReq
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	if err := util.DecodeJSON(w, r, &updateUsernameReq); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := h.validator.Validate(&updateUsernameReq); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	resp, err := h.services.UpdateUsername(userID, &updateUsernameReq)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}

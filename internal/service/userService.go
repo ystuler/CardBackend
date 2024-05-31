@@ -101,3 +101,19 @@ func (s *AuthenticationImpl) GetProfile(userID int) (*schemas.GetProfileResp, er
 
 	return &schemas.GetProfileResp{Profile: profile}, nil
 }
+
+func (s *AuthenticationImpl) UpdateUsername(userID int, usernameSchema *schemas.UpdateUsernameReq) (*schemas.UpdateUsernameResp, error) {
+	user, err := s.repo.GetUserById(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	user.Username = usernameSchema.Username
+
+	updatedUser, err := s.repo.UpdateUser(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &schemas.UpdateUsernameResp{ID: updatedUser.ID, Username: updatedUser.Username}, nil
+}

@@ -35,3 +35,11 @@ func (r *UserRepositoryImpl) GetUserById(userId int) (*models.User, error) {
 	}
 	return &user, nil
 }
+
+func (r *UserRepositoryImpl) UpdateUser(user *models.User) (*models.User, error) {
+	result := r.db.Model(user).Updates(user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return user, nil
+}
