@@ -37,6 +37,9 @@ func (r *CollectionRepositoryImpl) UpdateCollection(collection *models.Collectio
 }
 
 func (r *CollectionRepositoryImpl) RemoveCollection(collection *models.Collection) error {
+	if err := r.db.Where("collection_id = ?", collection.ID).Delete(&models.Card{}).Error; err != nil {
+		return err
+	}
 	if err := r.db.Delete(&collection).Error; err != nil {
 		return err
 	}
