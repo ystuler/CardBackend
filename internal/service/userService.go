@@ -6,7 +6,6 @@ import (
 	"back/internal/schemas"
 	"back/internal/util"
 	"errors"
-	"gorm.io/gorm"
 	"time"
 )
 
@@ -20,9 +19,9 @@ func NewAuthService(repo repository.UserRepository) *AuthenticationImpl {
 
 func (s *AuthenticationImpl) SignUp(userSchema *schemas.CreateUserReq) (*schemas.CreateUserResp, error) {
 	existingUser, err := s.repo.GetUserByUsername(userSchema.Username)
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, err
-	}
+	//if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	//	return nil, err
+	//}
 
 	if existingUser != nil {
 		return nil, errors.New("user already exists")
@@ -34,7 +33,6 @@ func (s *AuthenticationImpl) SignUp(userSchema *schemas.CreateUserReq) (*schemas
 	user := &models.User{
 		Username:     userSchema.Username,
 		PasswordHash: hashedPassword,
-		SecretWord:   "",
 		CreatedAt:    time.Time{},
 	}
 
