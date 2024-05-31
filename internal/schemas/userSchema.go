@@ -8,6 +8,7 @@ type CreateUserReq struct {
 type CreateUserResp struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
+	Token    string `json:"token"`
 }
 
 type SignInReq struct {

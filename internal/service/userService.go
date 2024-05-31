@@ -43,7 +43,13 @@ func (s *AuthenticationImpl) SignUp(userSchema *schemas.CreateUserReq) (*schemas
 		return nil, err
 	}
 
+	generatedJWT, err := util.GenerateJWT(createdUser)
+	if err != nil {
+		return nil, err
+	}
+
 	userSchemaResp := schemas.CreateUserResp{
+		Token:    generatedJWT,
 		ID:       createdUser.ID,
 		Username: createdUser.Username,
 	}
@@ -53,8 +59,14 @@ func (s *AuthenticationImpl) SignUp(userSchema *schemas.CreateUserReq) (*schemas
 
 func (s *AuthenticationImpl) SignIn(userSchema *schemas.SignInReq) (*schemas.SignInResp, error) {
 	existingUser, err := s.repo.GetUserByUsername(userSchema.Username)
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, errors.New("user not found")
+
+	//fixme не срабатывает ошибка
+	//if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	//	return nil, errors.New("user not found")
+	//}
+
+	if err != nil {
+		return nil, err
 	}
 
 	err = util.CheckPassword(userSchema.Password, existingUser.PasswordHash)
