@@ -19,7 +19,7 @@ type Card interface {
 	CreateCard(cardSchema *schemas.CreateCardReq, collectionID int) (*schemas.CreateCardResp, error)
 	UpdateCard(cardSchema *schemas.UpdateCardReq) (*schemas.UpdateCardResp, error)
 	RemoveCard(cardSchema *schemas.RemoveCardReq) error
-	GetCardsByCollectionID(collectionID int) ([]schemas.Card, error)
+	GetCardsByCollectionID(collectionID int) (*schemas.GetCardByCollectionIDResp, error)
 }
 
 type Service struct {
