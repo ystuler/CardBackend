@@ -40,5 +40,6 @@ type CardsByCollectionID struct {
 }
 
 type GetCardByCollectionIDResp struct {
-	Cards []CardsByCollectionID `json:"cards"`
+	CollectionID int                   `json:"collectionID"`
+	Cards        []CardsByCollectionID `json:"cards"`
 }
