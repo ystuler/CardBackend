@@ -1,13 +1,6 @@
 package main
 
 import (
-	"back/config"
-	"back/db"
-	"back/internal/handler"
-	"back/internal/models"
-	"back/internal/repository"
-	"back/internal/service"
-	"back/internal/util"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -16,11 +9,21 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+
+	"back/config"
+	"back/db"
+	"back/internal/handler"
+	"back/internal/models"
+	"back/internal/repository"
+	"back/internal/service"
+	"back/internal/util"
 )
 
-func TestUserSignup(t *testing.T) {
+func setupTestEnvironment(t *testing.T) (*httptest.Server, *repository.Repository) {
+	// Инициализация конфигурации
 	cfg := config.NewConfig()
 
+	// Инициализация базы данных
 	database, err := db.NewDatabase(cfg.Database.DSN())
 	if err != nil {
 		t.Fatalf("could not initialize database connection: %s", err)
@@ -35,7 +38,18 @@ func TestUserSignup(t *testing.T) {
 
 	// Создание тестового сервера
 	ts := httptest.NewServer(r)
-	defer ts.Close()
+
+	return ts, repos
+}
+
+func teardownTestEnvironment(ts *httptest.Server) {
+	ts.Close()
+}
+
+func TestUserSignup(t *testing.T) {
+	// Подготовка тестового окружения
+	ts, repos := setupTestEnvironment(t)
+	defer teardownTestEnvironment(ts)
 
 	hashedPassword, err := util.HashPassword("testpassword")
 	if err != nil {
