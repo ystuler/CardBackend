@@ -126,11 +126,12 @@ func (h *Handler) getAllCollections(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) startPractise(w http.ResponseWriter, r *http.Request) {
-	var practiseSchemaReq *schemas.TrainSchemaReq
+	var practiseSchemaReq schemas.TrainSchemaReq
 
 	collectionID, err := strconv.Atoi(chi.URLParam(r, "collectionID"))
 	if err != nil {
 		http.Error(w, "id must be an integer", http.StatusBadRequest)
+		return
 	}
 	practiseSchemaReq.ID = collectionID
 
@@ -139,9 +140,10 @@ func (h *Handler) startPractise(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	randomCards, err := h.services.TrainCards(practiseSchemaReq)
+	randomCards, err := h.services.TrainCards(&practiseSchemaReq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)

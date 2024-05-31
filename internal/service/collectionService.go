@@ -9,8 +9,7 @@ import (
 )
 
 type CollectionServiceImpl struct {
-	repo     repository.CollectionRepository
-	cardRepo repository.CardRepository
+	repo repository.CollectionRepository
 }
 
 func NewCollectionService(repo repository.CollectionRepository) *CollectionServiceImpl {
@@ -104,7 +103,7 @@ func (s *CollectionServiceImpl) GetAllCollections(userID int) (*schemas.AllColle
 }
 
 func (s *CollectionServiceImpl) TrainCards(req *schemas.TrainSchemaReq) (*schemas.TrainSchemaResp, error) {
-	cards, err := s.cardRepo.GetCardsByCollectionID(req.ID)
+	cards, err := s.repo.GetAllCardsByCollectionID(req.ID)
 	if err != nil {
 		return nil, err
 	}

@@ -16,6 +16,7 @@ type CollectionRepository interface {
 	UpdateCollection(collection *models.Collection) (*models.Collection, error)
 	RemoveCollection(collection *models.Collection) error
 	GetAllCollections(userID int) (*[]models.Collection, error)
+	GetAllCardsByCollectionID(collectionID int) (*[]models.Card, error)
 }
 
 type CardRepository interface {
