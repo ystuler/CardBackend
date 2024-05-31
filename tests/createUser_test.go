@@ -1,6 +1,7 @@
-package main
+package tests
 
 import (
+	"back/config"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"back/config"
 	"back/db"
 	"back/internal/handler"
 	"back/internal/models"
@@ -91,4 +91,57 @@ func TestUserSignup(t *testing.T) {
 
 	assert.Equal(t, testUser.Username, createdUser.Username)
 	assert.NoError(t, util.CheckPassword("testpassword", createdUser.PasswordHash))
+}
+
+func TestUserLogin(t *testing.T) {
+	ts, repos := setupTestEnvironment(t)
+	defer teardownTestEnvironment(ts)
+
+	hashedPassword, err := util.HashPassword("testpassword")
+	if err != nil {
+		t.Fatalf("could not hash password: %s", err)
+	}
+
+	// Создание пользователя для теста
+	testUser := models.User{
+		Username:     "testuser1",
+		PasswordHash: hashedPassword,
+		CreatedAt:    time.Now(),
+	}
+
+	_, err = repos.CreateUser(&testUser)
+	if err != nil {
+		t.Fatalf("could not create test user: %s", err)
+	}
+
+	// Подготовка данных для запроса
+	loginData := map[string]string{
+		"username": "testuser",
+		"password": "testpassword",
+	}
+	jsonData, err := json.Marshal(loginData)
+	if err != nil {
+		t.Fatalf("could not marshal login data: %s", err)
+	}
+
+	// Выполнение запроса на эндпоинт /auth/login
+	resp, err := http.Post(ts.URL+"/auth/login", "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatalf("could not send login request: %s", err)
+	}
+	defer resp.Body.Close()
+
+	// Проверка статуса ответа
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+	// Проверка наличия токена в ответе
+	var responseData map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&responseData)
+	if err != nil {
+		t.Fatalf("could not decode login response: %s", err)
+	}
+
+	token, exists := responseData["token"]
+	assert.True(t, exists)
+	assert.NotEmpty(t, token)
 }
