@@ -90,7 +90,8 @@ func (s *CardServiceImpl) GetCardsByCollectionID(collectionID int) (*schemas.Get
 		}
 	}
 	resp := &schemas.GetCardByCollectionIDResp{
-		Cards: cards,
+		CollectionID: collectionID,
+		Cards:        cards,
 	}
 	return resp, nil
 }
