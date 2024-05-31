@@ -9,5 +9,5 @@ type Collection struct {
 	CreatedAt   time.Time `gorm:"autoCreateTime"`
 	UserID      int       `gorm:"not null"`
 
-	Card []Card
+	Card []Card `gorm:"not null;constraint:OnDelete:CASCADE;"`
 }
