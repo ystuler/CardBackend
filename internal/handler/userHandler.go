@@ -85,6 +85,10 @@ func (h *Handler) getProfile(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) updateUsername(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserId(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
 	var updateUsernameReq schemas.UpdateUsernameReq
 
 	if err != nil {
@@ -112,4 +116,26 @@ func (h *Handler) updateUsername(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+func (h *Handler) updatePassword(w http.ResponseWriter, r *http.Request) {
+	var updatePasswordReq schemas.UpdatePasswordReq
+	userID, err := middleware.GetUserId(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+	if err := util.DecodeJSON(w, r, &updatePasswordReq); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if err := h.validator.Validate(&updatePasswordReq); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if err := h.services.UpdatePassword(userID, &updatePasswordReq); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }

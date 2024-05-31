@@ -10,6 +10,7 @@ type Authorization interface {
 	SignIn(userSchema *schemas.SignInReq) (*schemas.SignInResp, error)
 	GetProfile(userID int) (*schemas.GetProfileResp, error)
 	UpdateUsername(userID int, usernameSchema *schemas.UpdateUsernameReq) (*schemas.UpdateUsernameResp, error)
+	UpdatePassword(userID int, passwordSchema *schemas.UpdatePasswordReq) error
 }
 
 type Collection interface {

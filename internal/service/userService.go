@@ -117,3 +117,24 @@ func (s *AuthenticationImpl) UpdateUsername(userID int, usernameSchema *schemas.
 
 	return &schemas.UpdateUsernameResp{ID: updatedUser.ID, Username: updatedUser.Username}, nil
 }
+
+func (s *AuthenticationImpl) UpdatePassword(userID int, passwordSchema *schemas.UpdatePasswordReq) error {
+	user, err := s.repo.GetUserById(userID)
+	if err != nil {
+		return err
+	}
+
+	if err := util.CheckPassword(passwordSchema.OldPassword, user.PasswordHash); err != nil {
+		return errors.New("old password does not match")
+	}
+
+	hashedPassword, err := util.HashPassword(passwordSchema.NewPassword)
+	if err != nil {
+		return err
+	}
+
+	user.PasswordHash = hashedPassword
+
+	_, err = s.repo.UpdateUser(user)
+	return err
+}
