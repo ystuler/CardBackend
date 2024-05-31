@@ -51,5 +51,17 @@ func (h *Handler) InitRoutes() *chi.Mux {
 		})
 	})
 
+	r.Route("/cards/{collectionID}", func(r chi.Router) {
+		r.Use(middleware.UserIdentity)
+		r.Route("/", func(r chi.Router) {
+			r.Post("/", h.createCard)
+			r.Get("/", h.getCardsByCollectionID)
+		})
+	})
+	r.Route("/card/{cardID}", func(r chi.Router) {
+		r.Use(middleware.UserIdentity)
+		r.Put("/", h.editCard)
+		r.Delete("/", h.removeCard)
+	})
 	return r
 }

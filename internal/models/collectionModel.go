@@ -8,4 +8,6 @@ type Collection struct {
 	Description *string
 	CreatedAt   time.Time `gorm:"autoCreateTime"`
 	UserID      int       `gorm:"not null"`
+
+	Card []Card
 }

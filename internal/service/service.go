@@ -17,14 +17,23 @@ type Collection interface {
 	GetAllCollections(userID int) (*schemas.AllCollectionsResp, error)
 }
 
+type Card interface {
+	CreateCard(cardSchema *schemas.CreateCardReq, collectionID int) (*schemas.CreateCardResp, error)
+	UpdateCard(cardSchema *schemas.UpdateCardReq) (*schemas.UpdateCardResp, error)
+	RemoveCard(cardSchema *schemas.RemoveCardReq) error
+	GetCardsByCollectionID(collectionID int) (*schemas.GetCardByCollectionIDResp, error)
+}
+
 type Service struct {
 	Authorization
 	Collection
+	Card
 }
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(repos.UserRepository),
 		Collection:    NewCollectionService(repos.CollectionRepository),
+		Card:          NewCardService(repos.CardRepository),
 	}
 }
