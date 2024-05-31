@@ -8,6 +8,7 @@ import (
 type UserRepository interface {
 	CreateUser(user *models.User) (*models.User, error)
 	GetUserByUsername(username string) (*models.User, error)
+	GetUserById(userId int) (*models.User, error)
 }
 
 type CollectionRepository interface {

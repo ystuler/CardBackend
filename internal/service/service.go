@@ -8,6 +8,7 @@ import (
 type Authorization interface {
 	SignUp(userSchema *schemas.CreateUserReq) (*schemas.CreateUserResp, error)
 	SignIn(userSchema *schemas.SignInReq) (*schemas.SignInResp, error)
+	GetProfile(userID int) (*schemas.GetProfileResp, error)
 }
 
 type Collection interface {

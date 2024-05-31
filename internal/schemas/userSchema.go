@@ -21,3 +21,16 @@ type SignInResp struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
 }
+
+type Profile struct {
+	ID       int    `json:"id"`
+	Username string `json:"username"`
+}
+
+type GetProfileReq struct {
+	ID int `validate:"required,gt=0"`
+}
+
+type GetProfileResp struct {
+	Profile Profile `json:"profile"`
+}

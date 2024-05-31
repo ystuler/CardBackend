@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"back/internal/middleware"
 	"back/internal/schemas"
 	"back/internal/util"
 	"encoding/json"
@@ -50,6 +51,27 @@ func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 	resp, err := h.services.SignIn(&userSchemaReq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(resp)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *Handler) getProfile(w http.ResponseWriter, r *http.Request) {
+	userID, err := middleware.GetUserId(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	resp, err := h.services.GetProfile(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

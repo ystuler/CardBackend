@@ -87,3 +87,17 @@ func (s *AuthenticationImpl) SignIn(userSchema *schemas.SignInReq) (*schemas.Sig
 
 	return &userSchemaResp, nil
 }
+
+func (s *AuthenticationImpl) GetProfile(userID int) (*schemas.GetProfileResp, error) {
+	user, err := s.repo.GetUserById(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	profile := schemas.Profile{
+		ID:       user.ID,
+		Username: user.Username,
+	}
+
+	return &schemas.GetProfileResp{Profile: profile}, nil
+}
