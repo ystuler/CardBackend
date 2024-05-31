@@ -36,8 +36,8 @@ func (h *Handler) InitRoutes() *chi.Mux {
 	r.Get("/swagger", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("todo")) })
 
 	r.Route("/auth", func(r chi.Router) {
-		r.Post("/signup", h.signUp)
-		r.Post("/login", h.signIn)
+		r.Post("/signup", h.SignUp)
+		r.Post("/login", h.SignIn)
 	})
 
 	r.Group(func(r chi.Router) {

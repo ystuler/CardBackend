@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var userSchemaReq schemas.CreateUserReq
 
 	if err := json.NewDecoder(r.Body).Decode(&userSchemaReq); err != nil {
@@ -23,6 +23,9 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 
 	createdUser, err := h.services.SignUp(&userSchemaReq)
 	if err != nil {
+		if err.Error() == "user is already exists" {
+			http.Error(w, err.Error(), http.StatusConflict)
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -35,7 +38,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 	var userSchemaReq schemas.SignInReq
 
 	if err := util.DecodeJSON(w, r, &userSchemaReq); err != nil {

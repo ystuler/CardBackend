@@ -6,7 +6,6 @@ import (
 	"back/internal/util"
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -108,7 +107,6 @@ func (h *Handler) removeCollection(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) getAllCollections(w http.ResponseWriter, r *http.Request) {
 
 	userID, err := middleware.GetUserId(r.Context())
-	log.Println("You're ", userID)
 
 	allCollections, err := h.services.GetAllCollections(userID)
 	if err != nil {
