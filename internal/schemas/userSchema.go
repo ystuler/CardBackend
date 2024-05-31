@@ -36,6 +36,7 @@ type GetProfileResp struct {
 }
 
 type UpdateUsernameReq struct {
+	ID       int    `validate:"required,gt=0"`
 	Username string `json:"username" validate:"required"`
 }
 
@@ -45,6 +46,7 @@ type UpdateUsernameResp struct {
 }
 
 type UpdatePasswordReq struct {
+	ID          int    `validate:"required,gt=0"`
 	OldPassword string `json:"old_password" validate:"required"`
 	NewPassword string `json:"new_password" validate:"required"`
 }

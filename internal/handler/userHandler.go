@@ -84,17 +84,15 @@ func (h *Handler) getProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) updateUsername(w http.ResponseWriter, r *http.Request) {
+	var updateUsernameReq schemas.UpdateUsernameReq
+
 	userID, err := middleware.GetUserId(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
-	var updateUsernameReq schemas.UpdateUsernameReq
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
-		return
-	}
+	updateUsernameReq.ID = userID
 
 	if err := util.DecodeJSON(w, r, &updateUsernameReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -106,7 +104,7 @@ func (h *Handler) updateUsername(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := h.services.UpdateUsername(userID, &updateUsernameReq)
+	resp, err := h.services.UpdateUsername(&updateUsernameReq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -125,6 +123,9 @@ func (h *Handler) updatePassword(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
+
+	updatePasswordReq.ID = userID
+
 	if err := util.DecodeJSON(w, r, &updatePasswordReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -133,7 +134,7 @@ func (h *Handler) updatePassword(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if err := h.services.UpdatePassword(userID, &updatePasswordReq); err != nil {
+	if err := h.services.UpdatePassword(&updatePasswordReq); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

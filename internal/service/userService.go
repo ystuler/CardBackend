@@ -102,8 +102,8 @@ func (s *AuthenticationImpl) GetProfile(userID int) (*schemas.GetProfileResp, er
 	return &schemas.GetProfileResp{Profile: profile}, nil
 }
 
-func (s *AuthenticationImpl) UpdateUsername(userID int, usernameSchema *schemas.UpdateUsernameReq) (*schemas.UpdateUsernameResp, error) {
-	user, err := s.repo.GetUserById(userID)
+func (s *AuthenticationImpl) UpdateUsername(usernameSchema *schemas.UpdateUsernameReq) (*schemas.UpdateUsernameResp, error) {
+	user, err := s.repo.GetUserById(usernameSchema.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -118,8 +118,8 @@ func (s *AuthenticationImpl) UpdateUsername(userID int, usernameSchema *schemas.
 	return &schemas.UpdateUsernameResp{ID: updatedUser.ID, Username: updatedUser.Username}, nil
 }
 
-func (s *AuthenticationImpl) UpdatePassword(userID int, passwordSchema *schemas.UpdatePasswordReq) error {
-	user, err := s.repo.GetUserById(userID)
+func (s *AuthenticationImpl) UpdatePassword(passwordSchema *schemas.UpdatePasswordReq) error {
+	user, err := s.repo.GetUserById(passwordSchema.ID)
 	if err != nil {
 		return err
 	}
