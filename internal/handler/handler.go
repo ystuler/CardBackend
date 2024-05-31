@@ -50,6 +50,7 @@ func (h *Handler) InitRoutes() *chi.Mux {
 			r.Route("/{collectionID}", func(r chi.Router) {
 				r.Put("/", h.editCollection)
 				r.Delete("/", h.removeCollection)
+				r.Get("/train", h.startPractise)
 
 				r.Route("/cards", func(r chi.Router) {
 					r.Post("/", h.createCard)
