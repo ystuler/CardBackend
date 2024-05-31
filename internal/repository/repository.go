@@ -22,7 +22,7 @@ type CardRepository interface {
 	RemoveCard(card *models.Card) error
 	GetAllCards() ([]models.Card, error)
 	GetCardByID(cardID int) (*models.Card, error)
-	GetCardsByCollectionID(collectionID int) ([]models.Card, error)
+	GetCardsByCollectionID(collectionID int) (*[]models.Card, error)
 }
 
 type Repository struct {

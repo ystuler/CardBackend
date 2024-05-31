@@ -51,10 +51,10 @@ func (r *CardRepositoryImpl) GetCardByID(cardID int) (*models.Card, error) {
 	return &card, nil
 }
 
-func (r *CardRepositoryImpl) GetCardsByCollectionID(collectionID int) ([]models.Card, error) {
+func (r *CardRepositoryImpl) GetCardsByCollectionID(collectionID int) (*[]models.Card, error) {
 	var cards []models.Card
 	if err := r.db.Where("collection_id = ?", collectionID).Find(&cards).Error; err != nil {
 		return nil, err
 	}
-	return cards, nil
+	return &cards, nil
 }
