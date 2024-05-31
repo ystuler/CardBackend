@@ -40,28 +40,29 @@ func (h *Handler) InitRoutes() *chi.Mux {
 		r.Post("/login", h.signIn)
 	})
 
-	r.Route("/collections", func(r chi.Router) {
+	r.Group(func(r chi.Router) {
 		r.Use(middleware.UserIdentity)
-		r.Get("/", h.getAllCollections)
-		r.Post("/", h.createCollection)
 
-		r.Route("/{collectionID}", func(r chi.Router) {
-			r.Put("/", h.editCollection)
-			r.Delete("/", h.removeCollection)
+		r.Route("/collections", func(r chi.Router) {
+			r.Get("/", h.getAllCollections)
+			r.Post("/", h.createCollection)
+
+			r.Route("/{collectionID}", func(r chi.Router) {
+				r.Put("/", h.editCollection)
+				r.Delete("/", h.removeCollection)
+
+				r.Route("/cards", func(r chi.Router) {
+					r.Post("/", h.createCard)
+					r.Get("/", h.getCardsByCollectionID)
+				})
+			})
+		})
+
+		r.Route("/cards/{cardID}", func(r chi.Router) {
+			r.Put("/", h.editCard)
+			r.Delete("/", h.removeCard)
 		})
 	})
 
-	r.Route("/cards/{collectionID}", func(r chi.Router) {
-		r.Use(middleware.UserIdentity)
-		r.Route("/", func(r chi.Router) {
-			r.Post("/", h.createCard)
-			r.Get("/", h.getCardsByCollectionID)
-		})
-	})
-	r.Route("/card/{cardID}", func(r chi.Router) {
-		r.Use(middleware.UserIdentity)
-		r.Put("/", h.editCard)
-		r.Delete("/", h.removeCard)
-	})
 	return r
 }

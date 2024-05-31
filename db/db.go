@@ -27,7 +27,7 @@ func NewDatabase(dsn string) (*Database, error) {
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
-	err = db.AutoMigrate(&models.User{}, &models.Collection{})
+	err = db.AutoMigrate(&models.User{}, &models.Collection{}, &models.Card{})
 	if err != nil {
 		log.Printf("Error auto migrate %v", err)
 	}
