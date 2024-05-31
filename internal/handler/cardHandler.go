@@ -58,12 +58,12 @@ func (h *Handler) editCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	updatedCardSchemaReq.ID = cardID
+
 	if err := h.validator.Validate(&updatedCardSchemaReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	updatedCardSchemaReq.ID = cardID
 
 	updatedCard, err := h.services.UpdateCard(&updatedCardSchemaReq)
 	if err != nil {
@@ -78,13 +78,6 @@ func (h *Handler) editCard(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) removeCard(w http.ResponseWriter, r *http.Request) {
-	var removedCardSchemaReq schemas.RemoveCardReq
-
-	if err := util.DecodeJSON(w, r, &removedCardSchemaReq); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	cardIDStr := chi.URLParam(r, "cardID")
 	cardID, err := strconv.Atoi(cardIDStr)
 	if err != nil {
@@ -92,31 +85,24 @@ func (h *Handler) removeCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.validator.Validate(&removedCardSchemaReq); err != nil {
+	removeCardReq := schemas.RemoveCardReq{ID: cardID}
+
+	if err := h.validator.Validate(&removeCardReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	removedCardSchemaReq.ID = cardID
-
-	err = h.services.RemoveCard(&removedCardSchemaReq)
+	err = h.services.RemoveCard(&removeCardReq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// Отправляем успешный ответ
 	w.WriteHeader(http.StatusAccepted)
 	w.Write([]byte("Card successfully removed"))
 }
 
 func (h *Handler) getCardsByCollectionID(w http.ResponseWriter, r *http.Request) {
-	//var CardsSchemaReq schemas.Card
-	//
-	//if err := util.DecodeJSON(w, r, &CardsSchemaReq); err != nil {
-	//	http.Error(w, err.Error(), http.StatusBadRequest)
-	//	return
-	//}
 
 	collectionIDStr := chi.URLParam(r, "collectionID")
 	collectionID, err := strconv.Atoi(collectionIDStr)
@@ -125,18 +111,13 @@ func (h *Handler) getCardsByCollectionID(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	//if err := h.validator.Validate(&CardsSchemaReq); err != nil {
-	//	http.Error(w, err.Error(), http.StatusBadRequest)
-	//	return
-	//}
-
 	cards, err := h.services.GetCardsByCollectionID(collectionID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusAccepted)
+	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(cards); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
