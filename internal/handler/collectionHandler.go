@@ -86,11 +86,6 @@ func (h *Handler) editCollection(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) removeCollection(w http.ResponseWriter, r *http.Request) {
 	var removedCollectionSchema schemas.RemoveCollectionReq
 
-	if err := util.DecodeJSON(w, r, &removedCollectionSchema); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	collectionID, err := strconv.Atoi(chi.URLParam(r, "collectionID"))
 	if err != nil {
 		http.Error(w, "id must be an integer", http.StatusBadRequest)
