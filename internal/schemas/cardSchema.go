@@ -13,7 +13,7 @@ type CreateCardResp struct {
 }
 
 type UpdateCardReq struct {
-	ID       int     `json:"id"`
+	ID       int     `validate:"required,gt=0"`
 	Question *string `json:"question,omitempty"`
 	Answer   *string `json:"answer,omitempty"`
 }
@@ -26,11 +26,19 @@ type UpdateCardResp struct {
 }
 
 type RemoveCardReq struct {
-	ID int `json:"id"`
+	ID int `validate:"required,gt=0"`
 }
 
-type Card struct {
+type GetCardsByCollectionIDReq struct {
+	CollectionID int `validate:"required,gt=0"`
+}
+
+type CardsByCollectionID struct {
 	ID       int    `json:"id"`
 	Question string `json:"question"`
 	Answer   string `json:"answer"`
+}
+
+type GetCardByCollectionIDResp struct {
+	Cards []CardsByCollectionID `json:"cards"`
 }
