@@ -2,8 +2,6 @@ package schemas
 
 import "time"
 
-//todo у id может быть только положительные id, поэтоум заменить на uint
-
 type CreateCollectionReq struct {
 	Name        string `json:"name" validate:"required"`
 	Description string `json:"description,omitempty"`

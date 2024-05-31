@@ -7,7 +7,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"net/http"
 )
 
 type Handler struct {
@@ -31,10 +30,7 @@ func (h *Handler) InitRoutes() *chi.Mux {
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
-
-	//todo swagger
-	r.Get("/swagger", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("todo")) })
-
+	
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/signup", h.SignUp)
 		r.Post("/login", h.SignIn)

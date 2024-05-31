@@ -64,7 +64,6 @@ func (s *CollectionServiceImpl) UpdateCollection(collectionSchema *schemas.Updat
 	return &updatedCollection, nil
 }
 
-// todo удаление коллекции (cascade)
 func (s *CollectionServiceImpl) RemoveCollection(collectionSchema *schemas.RemoveCollectionReq) error {
 	collection, err := s.repo.GetCollectionByID(collectionSchema.ID)
 	if err != nil {
