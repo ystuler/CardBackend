@@ -36,6 +36,7 @@ func NewConfig() *Config {
 	viper.SetDefault("database.password", "root")
 	viper.SetDefault("database.dbname", "memoryCards")
 	viper.SetDefault("database.sslmode", "disable")
+	viper.SetDefault("database.timezone", "Europe/Moscow")
 
 	// Для установки переменных окружения необходимо использовать такой стиль, как `APP_SERVER_PORT="8000"`
 	viper.SetEnvPrefix("app")
