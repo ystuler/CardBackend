@@ -10,3 +10,6 @@ database:
   dbname: "memorycards"
   sslmode: "disable"
   timezone: "Europe/Moscow"
+
+JWT:
+  signingkey: ""

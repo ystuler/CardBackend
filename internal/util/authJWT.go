@@ -1,14 +1,13 @@
 package util
 
 import (
+	"back/config"
 	"back/internal/models"
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
 	"strconv"
 	"time"
 )
-
-const signingKey = "mySecret"
 
 func GenerateJWT(userModel *models.User) (string, error) {
 	claims := &jwt.RegisteredClaims{
@@ -18,7 +17,7 @@ func GenerateJWT(userModel *models.User) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(signingKey))
+	return token.SignedString([]byte(config.JWTSigningKey))
 }
 
 func ParseToken(accessToken string) (*jwt.RegisteredClaims, error) {
@@ -26,7 +25,7 @@ func ParseToken(accessToken string) (*jwt.RegisteredClaims, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")
 		}
-		return []byte(signingKey), nil
+		return []byte(config.JWTSigningKey), nil
 	})
 
 	if err != nil {
