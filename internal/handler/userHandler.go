@@ -12,11 +12,11 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var userSchemaReq schemas.CreateUserReq
 
 	if err := json.NewDecoder(r.Body).Decode(&userSchemaReq); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
 		return
 	}
 
-	if err := h.validator.Validate(&userSchemaReq); err != nil {
+	if err := h.validator.ValidateWithDetailedErrors(&userSchemaReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

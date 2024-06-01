@@ -30,7 +30,7 @@ func (h *Handler) InitRoutes() *chi.Mux {
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
-	
+
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/signup", h.SignUp)
 		r.Post("/login", h.SignIn)
