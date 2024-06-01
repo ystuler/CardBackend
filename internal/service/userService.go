@@ -1,6 +1,7 @@
 package service
 
 import (
+	"back/internal/exceptions"
 	"back/internal/models"
 	"back/internal/repository"
 	"back/internal/schemas"
@@ -21,7 +22,7 @@ func (s *AuthenticationImpl) SignUp(userSchema *schemas.CreateUserReq) (*schemas
 	existingUser, err := s.repo.GetUserByUsername(userSchema.Username)
 
 	if existingUser != nil {
-		return nil, errors.New("user already exists")
+		return nil, errors.New(exceptions.ErrUserAlreadyExists)
 	}
 
 	hashedPassword, err := util.HashPassword(userSchema.Password)
