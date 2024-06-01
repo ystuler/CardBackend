@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"back/internal/exceptions"
 	"back/internal/schemas"
 	"back/internal/util"
 	"encoding/json"
@@ -13,11 +14,11 @@ func (h *Handler) createCard(w http.ResponseWriter, r *http.Request) {
 	var cardSchemaReq schemas.CreateCardReq
 
 	if err := util.DecodeJSON(w, r, &cardSchemaReq); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, exceptions.ErrInvalidJSONFormat, http.StatusBadRequest)
 		return
 	}
 
-	if err := h.validator.Validate(&cardSchemaReq); err != nil {
+	if err := h.validator.ValidateWithDetailedErrors(&cardSchemaReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -25,19 +26,19 @@ func (h *Handler) createCard(w http.ResponseWriter, r *http.Request) {
 	collectionIDStr := chi.URLParam(r, "collectionID")
 	collectionID, err := strconv.Atoi(collectionIDStr)
 	if err != nil {
-		http.Error(w, "Invalid collection ID", http.StatusBadRequest)
+		http.Error(w, exceptions.ErrInvalidCollectionID, http.StatusBadRequest)
 		return
 	}
 
 	createdCard, err := h.services.CreateCard(&cardSchemaReq, collectionID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(createdCard); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
 		return
 	}
 
@@ -47,32 +48,32 @@ func (h *Handler) editCard(w http.ResponseWriter, r *http.Request) {
 	var updatedCardSchemaReq schemas.UpdateCardReq
 
 	if err := util.DecodeJSON(w, r, &updatedCardSchemaReq); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, exceptions.ErrInvalidJSONFormat, http.StatusBadRequest)
 		return
 	}
 
 	cardIDStr := chi.URLParam(r, "cardID")
 	cardID, err := strconv.Atoi(cardIDStr)
 	if err != nil {
-		http.Error(w, "Invalid card ID", http.StatusBadRequest)
+		http.Error(w, exceptions.ErrInvalidCardID, http.StatusBadRequest)
 		return
 	}
 
 	updatedCardSchemaReq.ID = cardID
 
-	if err := h.validator.Validate(&updatedCardSchemaReq); err != nil {
+	if err := h.validator.ValidateWithDetailedErrors(&updatedCardSchemaReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	updatedCard, err := h.services.UpdateCard(&updatedCardSchemaReq)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusAccepted)
 	if err := json.NewEncoder(w).Encode(updatedCard); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
 		return
 	}
 }
@@ -81,29 +82,27 @@ func (h *Handler) removeCard(w http.ResponseWriter, r *http.Request) {
 	cardIDStr := chi.URLParam(r, "cardID")
 	cardID, err := strconv.Atoi(cardIDStr)
 	if err != nil {
-		http.Error(w, "Invalid card ID", http.StatusBadRequest)
+		http.Error(w, exceptions.ErrInvalidCardID, http.StatusBadRequest)
 		return
 	}
 
 	removeCardReq := schemas.RemoveCardReq{ID: cardID}
 
-	if err := h.validator.Validate(&removeCardReq); err != nil {
+	if err := h.validator.ValidateWithDetailedErrors(&removeCardReq); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	err = h.services.RemoveCard(&removeCardReq)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusAccepted)
-	w.Write([]byte("Card successfully removed"))
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *Handler) getCardsByCollectionID(w http.ResponseWriter, r *http.Request) {
-	//todo add collection_id in return
 	collectionIDStr := chi.URLParam(r, "collectionID")
 	collectionID, err := strconv.Atoi(collectionIDStr)
 	if err != nil {
