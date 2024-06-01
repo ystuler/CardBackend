@@ -12,8 +12,7 @@ import (
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var userSchemaReq schemas.CreateUserReq
 
-	//todo
-	if err := json.NewDecoder(r.Body).Decode(&userSchemaReq); err != nil {
+	if err := util.DecodeJSON(w, r, &userSchemaReq); err != nil {
 		http.Error(w, exceptions.ErrInvalidJSONFormat, http.StatusBadRequest)
 		return
 	}
