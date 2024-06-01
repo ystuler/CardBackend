@@ -63,13 +63,7 @@ func (h *Handler) editCollection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := middleware.GetUserId(r.Context())
-	if err != nil {
-		http.Error(w, exceptions.ErrInvalidToken, http.StatusUnauthorized)
-		return
-	}
-
-	updatedCollection, err := h.services.UpdateCollection(&updatedCollectionSchema, userID)
+	updatedCollection, err := h.services.UpdateCollection(&updatedCollectionSchema)
 	if err != nil {
 		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
 		return
