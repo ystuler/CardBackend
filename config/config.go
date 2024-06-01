@@ -46,7 +46,6 @@ func NewConfig() *Config {
 	viper.SetDefault("database.dbname", "memoryCards")
 	viper.SetDefault("database.sslmode", "disable")
 	viper.SetDefault("database.timezone", "Europe/Moscow")
-
 	viper.SetDefault("JWT.signingkey", "SecretKey")
 
 	// Для установки переменных окружения необходимо использовать такой стиль, как `APP_SERVER_PORT="8000"`
