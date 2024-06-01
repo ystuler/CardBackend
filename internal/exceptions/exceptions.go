@@ -1,6 +1,6 @@
 package exceptions
 
-var (
+const (
 	ErrUserAlreadyExists   = "user already exists"
 	ErrInvalidJSONFormat   = "invalid JSON format"
 	ErrInternalServer      = "internal server error"
