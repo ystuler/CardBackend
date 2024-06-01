@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"back/internal/exceptions"
 	"back/internal/middleware"
 	"back/internal/schemas"
 	"back/internal/util"
@@ -12,7 +13,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var userSchemaReq schemas.CreateUserReq
 
 	if err := json.NewDecoder(r.Body).Decode(&userSchemaReq); err != nil {
-		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+		http.Error(w, exceptions.ErrInvalidJSONFormat, http.StatusBadRequest)
 		return
 	}
 
@@ -24,16 +25,16 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	createdUser, err := h.services.SignUp(&userSchemaReq)
 	if err != nil {
 		if err.Error() == "user is already exists" {
-			http.Error(w, err.Error(), http.StatusConflict)
+			http.Error(w, exceptions.ErrUserAlreadyExists, http.StatusConflict)
 		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
 	err = json.NewEncoder(w).Encode(createdUser)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
 		return
 	}
 }
