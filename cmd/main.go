@@ -28,5 +28,9 @@ func main() {
 
 	serverAddr := cfg.Server.GetADDR()
 	log.Print("Listening server on ", serverAddr)
-	http.ListenAndServe(serverAddr, r)
+	
+	err = http.ListenAndServe(serverAddr, r)
+	if err != nil {
+		log.Fatalf("could not start server: %s", err)
+	}
 }
