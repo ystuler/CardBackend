@@ -1,12 +1,10 @@
-version: '3.8'
-
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8001:8000"
+      - "8000:8000"
     environment:
       - APP_SERVER_IP=${APP_SERVER_IP:-0.0.0.0}
       - APP_SERVER_PORT=${APP_SERVER_PORT:-8000}
@@ -17,6 +15,8 @@ services:
       - APP_DATABASE_DBNAME=${APP_DATABASE_DBNAME:-memorycards}
       - APP_DATABASE_SSLMODE=${APP_DATABASE_SSLMODE:-disable}
       - APP_DATABASE_TIMEZONE=${APP_DATABASE_TIMEZONE:-Europe/Moscow}
+      - APP_JWT_SIGNINGKEY=${APP_JWT_SIGNINGKEY:-6d936a4ee5d36b6b69457dee30e5002d39c824cc2afccb1775e931fc0f414a28}
+
     depends_on:
       - db
 
