@@ -1,0 +1,709 @@
+schemes: []
+swagger: '2.0'
+info:
+  description: A flashcard application backend API for managing collections and cards
+  title: Card Backend API
+  termsOfService: http://swagger.io/terms/
+  contact:
+    name: API Support
+    url: http://www.swagger.io/support
+    email: support@cardbackend.io
+  license:
+    name: MIT
+    url: http://opensource.org/licenses/MIT
+  version: '1.0'
+host: localhost:8080
+basePath: /
+paths:
+  /auth/login:
+    post:
+      description: Authenticate user with username and password
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - auth
+      summary: User login
+      parameters:
+        - description: User login credentials
+          name: request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/schemas.SignInReq'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.SignInResp'
+        '400':
+          description: Invalid JSON format or validation error
+          schema:
+            type: string
+        '401':
+          description: Invalid credentials
+          schema:
+            type: string
+        '500':
+          description: Internal server error
+          schema:
+            type: string
+  /auth/signup:
+    post:
+      description: Create a new user account with username and password
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - auth
+      summary: Register a new user
+      parameters:
+        - description: User registration data
+          name: request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/schemas.CreateUserReq'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/schemas.CreateUserResp'
+        '400':
+          description: Invalid JSON format or validation error
+          schema:
+            type: string
+        '409':
+          description: User already exists
+          schema:
+            type: string
+        '500':
+          description: Internal server error
+          schema:
+            type: string
+  /cards/{cardID}:
+    put:
+      security:
+        - BearerAuth: []
+      description: Update an existing card's question or answer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - cards
+      summary: Update a card
+      parameters:
+        - type: integer
+          description: Card ID
+          name: cardID
+          in: path
+          required: true
+        - description: Updated card data
+          name: request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/schemas.UpdateCardReq'
+      responses:
+        '202':
+          description: Accepted
+          schema:
+            $ref: '#/definitions/schemas.UpdateCardResp'
+        '400':
+          description: Invalid JSON format, card ID, or validation error
+          schema:
+            type: string
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+        '500':
+          description: Internal server error
+          schema:
+            type: string
+    delete:
+      security:
+        - BearerAuth: []
+      description: Delete an existing card
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - cards
+      summary: Delete a card
+      parameters:
+        - type: integer
+          description: Card ID
+          name: cardID
+          in: path
+          required: true
+      responses:
+        '204':
+          description: Card deleted successfully
+          schema:
+            type: string
+        '400':
+          description: Invalid card ID or validation error
+          schema:
+            type: string
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+        '500':
+          description: Internal server error
+          schema:
+            type: string
+  /collections:
+    get:
+      security:
+        - BearerAuth: []
+      description: Retrieve all collections for the authenticated user
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - collections
+      summary: Get all collections
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.AllCollectionsResp'
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+        '500':
+          description: Internal server error
+          schema:
+            type: string
+    post:
+      security:
+        - BearerAuth: []
+      description: Create a new flashcard collection for the authenticated user
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - collections
+      summary: Create a new collection
+      parameters:
+        - description: Collection data
+          name: request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/schemas.CreateCollectionReq'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/schemas.CreateCollectionResp'
+        '400':
+          description: Invalid JSON format or validation error
+          schema:
+            type: string
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+        '500':
+          description: Internal server error
+          schema:
+            type: string
+  /collections/{collectionID}:
+    put:
+      security:
+        - BearerAuth: []
+      description: Update an existing collection's name or description
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - collections
+      summary: Update a collection
+      parameters:
+        - type: integer
+          description: Collection ID
+          name: collectionID
+          in: path
+          required: true
+        - description: Updated collection data
+          name: request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/schemas.UpdateCollectionReq'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.UpdateCollectionResp'
+        '400':
+          description: Invalid JSON format, collection ID, or validation error
+          schema:
+            type: string
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+        '500':
+          description: Internal server error
+          schema:
+            type: string
+    delete:
+      security:
+        - BearerAuth: []
+      description: Delete an existing collection and all its cards
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - collections
+      summary: Delete a collection
+      parameters:
+        - type: integer
+          description: Collection ID
+          name: collectionID
+          in: path
+          required: true
+      responses:
+        '204':
+          description: Collection deleted successfully
+          schema:
+            type: string
+        '400':
+          description: Invalid collection ID or validation error
+          schema:
+            type: string
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+        '500':
+          description: Internal server error
+          schema:
+            type: string
+  /collections/{collectionID}/cards:
+    get:
+      security:
+        - BearerAuth: []
+      description: Retrieve all cards from a specific collection
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - cards
+      summary: Get cards by collection
+      parameters:
+        - type: integer
+          description: Collection ID
+          name: collectionID
+          in: path
+          required: true
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.GetCardByCollectionIDResp'
+        '400':
+          description: Invalid collection ID
+          schema:
+            type: string
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+        '500':
+          description: Internal server error
+          schema:
+            type: string
+    post:
+      security:
+        - BearerAuth: []
+      description: Create a new flashcard in a specific collection
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - cards
+      summary: Create a new card
+      parameters:
+        - type: integer
+          description: Collection ID
+          name: collectionID
+          in: path
+          required: true
+        - description: Card data
+          name: request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/schemas.CreateCardReq'
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/schemas.CreateCardResp'
+        '400':
+          description: Invalid JSON format, collection ID, or validation error
+          schema:
+            type: string
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+        '500':
+          description: Internal server error
+          schema:
+            type: string
+  /collections/{collectionID}/train:
+    get:
+      security:
+        - BearerAuth: []
+      description: Get random cards from a collection for practice/training
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - collections
+      summary: Start practice session
+      parameters:
+        - type: integer
+          description: Collection ID
+          name: collectionID
+          in: path
+          required: true
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.GetCardByCollectionIDResp'
+        '400':
+          description: Invalid collection ID or validation error
+          schema:
+            type: string
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+        '500':
+          description: Internal server error
+          schema:
+            type: string
+  /profile:
+    get:
+      security:
+        - BearerAuth: []
+      description: Retrieve the current user's profile information
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - profile
+      summary: Get user profile
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.GetProfileResp'
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+        '500':
+          description: Internal server error
+          schema:
+            type: string
+  /profile/password:
+    put:
+      security:
+        - BearerAuth: []
+      description: Update the current user's password
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - profile
+      summary: Update password
+      parameters:
+        - description: Password update data
+          name: request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/schemas.UpdatePasswordReq'
+      responses:
+        '204':
+          description: Password updated successfully
+          schema:
+            type: string
+        '400':
+          description: Invalid JSON format or validation error
+          schema:
+            type: string
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+        '500':
+          description: Internal server error
+          schema:
+            type: string
+  /profile/username:
+    put:
+      security:
+        - BearerAuth: []
+      description: Update the current user's username
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - profile
+      summary: Update username
+      parameters:
+        - description: New username data
+          name: request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/schemas.UpdateUsernameReq'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.UpdateUsernameResp'
+        '400':
+          description: Invalid JSON format or validation error
+          schema:
+            type: string
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+        '500':
+          description: Internal server error
+          schema:
+            type: string
+definitions:
+  schemas.AllCollections:
+    type: object
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+  schemas.AllCollectionsResp:
+    type: object
+    properties:
+      collections:
+        type: array
+        items:
+          $ref: '#/definitions/schemas.AllCollections'
+  schemas.CardsByCollectionID:
+    type: object
+    properties:
+      answer:
+        type: string
+      id:
+        type: integer
+      question:
+        type: string
+  schemas.CreateCardReq:
+    type: object
+    required:
+      - question
+    properties:
+      answer:
+        type: string
+      question:
+        type: string
+  schemas.CreateCardResp:
+    type: object
+    properties:
+      answer:
+        type: string
+      collectionID:
+        type: integer
+      id:
+        type: integer
+      question:
+        type: string
+  schemas.CreateCollectionReq:
+    type: object
+    required:
+      - name
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+  schemas.CreateCollectionResp:
+    type: object
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+  schemas.CreateUserReq:
+    type: object
+    required:
+      - password
+      - username
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+  schemas.CreateUserResp:
+    type: object
+    properties:
+      id:
+        type: integer
+      token:
+        type: string
+      username:
+        type: string
+  schemas.GetCardByCollectionIDResp:
+    type: object
+    properties:
+      cards:
+        type: array
+        items:
+          $ref: '#/definitions/schemas.CardsByCollectionID'
+      collectionID:
+        type: integer
+  schemas.GetProfileResp:
+    type: object
+    properties:
+      profile:
+        $ref: '#/definitions/schemas.Profile'
+  schemas.Profile:
+    type: object
+    properties:
+      id:
+        type: integer
+      username:
+        type: string
+  schemas.SignInReq:
+    type: object
+    required:
+      - password
+      - username
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+  schemas.SignInResp:
+    type: object
+    properties:
+      id:
+        type: integer
+      token:
+        type: string
+      username:
+        type: string
+  schemas.UpdateCardReq:
+    type: object
+    required:
+      - id
+    properties:
+      answer:
+        type: string
+      id:
+        type: integer
+      question:
+        type: string
+  schemas.UpdateCardResp:
+    type: object
+    properties:
+      answer:
+        type: string
+      collection_id:
+        type: integer
+      id:
+        type: integer
+      question:
+        type: string
+  schemas.UpdateCollectionReq:
+    type: object
+    required:
+      - id
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+  schemas.UpdateCollectionResp:
+    type: object
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+  schemas.UpdatePasswordReq:
+    type: object
+    required:
+      - id
+      - new_password
+      - old_password
+    properties:
+      id:
+        type: integer
+      new_password:
+        type: string
+      old_password:
+        type: string
+  schemas.UpdateUsernameReq:
+    type: object
+    required:
+      - id
+      - username
+    properties:
+      id:
+        type: integer
+      username:
+        type: string
+  schemas.UpdateUsernameResp:
+    type: object
+    properties:
+      id:
+        type: integer
+      username:
+        type: string
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    type: apiKey
+    name: Authorization
+    in: header

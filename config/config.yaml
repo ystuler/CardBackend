@@ -5,11 +5,11 @@ server:
 database:
   host: "localhost"
   port: "5432"
-  user: "postgres"
-  password: "1234"
+  user: "admin"
+  password: "root"
   dbname: "memorycards"
   sslmode: "disable"
   timezone: "Europe/Moscow"
 
 JWT:
-  signingkey: ""
+  signingkey: "6d936a4ee5d36b6b69457dee30e5002d39c824cc2afccb1775e931fc0f414a28"
