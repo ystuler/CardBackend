@@ -175,7 +175,7 @@ Swagger теперь генерируется из аннотаций в хен�
 Сгенерировать документацию:
 
 ```bash
-go run github.com/swaggo/swag/cmd/swag@v1.8.1 init -g cmd/main.go -o docs --parseInternal
+go run github.com/swaggo/swag/cmd/swag@v1.8.1 init -g cmd/main.go -o . -ot yaml --parseInternal
 ```
 
 После запуска приложения UI доступен по адресу:
