@@ -5,11 +5,12 @@ import (
 	"back/internal/middleware"
 	"back/internal/service"
 	"back/internal/util"
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	httpSwagger "github.com/swaggo/http-swagger"
-	"net/http"
 )
 
 type Handler struct {

@@ -4,9 +4,10 @@ import (
 	"back/internal/exceptions"
 	"back/internal/schemas"
 	"back/internal/util"
-	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
 
 // createCard creates a card in collection.

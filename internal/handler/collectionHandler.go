@@ -5,9 +5,10 @@ import (
 	"back/internal/middleware"
 	"back/internal/schemas"
 	"back/internal/util"
-	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
 
 // createCollection creates a new collection for the current user.
