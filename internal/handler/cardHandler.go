@@ -9,6 +9,19 @@ import (
 	"strconv"
 )
 
+// createCard creates a card in collection.
+// @Summary Create card
+// @Tags cards
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param collectionID path int true "collection id"
+// @Param request body schemas.CreateCardReq true "card payload"
+// @Success 201 {object} schemas.CreateCardResp
+// @Failure 400 {object} util.ErrorResponse
+// @Failure 401 {object} util.ErrorResponse
+// @Failure 422 {object} util.ErrorResponse
+// @Router /collections/{collectionID}/cards/ [post]
 func (h *Handler) createCard(w http.ResponseWriter, r *http.Request) {
 	var cardSchemaReq schemas.CreateCardReq
 
@@ -39,6 +52,21 @@ func (h *Handler) createCard(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// editCard updates card (used for PUT and PATCH routes).
+// @Summary Update card
+// @Tags cards
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param cardID path int true "card id"
+// @Param request body schemas.UpdateCardReq true "card payload"
+// @Success 200 {object} schemas.UpdateCardResp
+// @Failure 400 {object} util.ErrorResponse
+// @Failure 401 {object} util.ErrorResponse
+// @Failure 404 {object} util.ErrorResponse
+// @Failure 422 {object} util.ErrorResponse
+// @Router /cards/{cardID}/ [put]
+// @Router /cards/{cardID}/ [patch]
 func (h *Handler) editCard(w http.ResponseWriter, r *http.Request) {
 	var updatedCardSchemaReq schemas.UpdateCardReq
 
@@ -69,6 +97,17 @@ func (h *Handler) editCard(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, http.StatusOK, updatedCard)
 }
 
+// removeCard deletes card.
+// @Summary Delete card
+// @Tags cards
+// @Security BearerAuth
+// @Produce json
+// @Param cardID path int true "card id"
+// @Success 204
+// @Failure 400 {object} util.ErrorResponse
+// @Failure 401 {object} util.ErrorResponse
+// @Failure 404 {object} util.ErrorResponse
+// @Router /cards/{cardID}/ [delete]
 func (h *Handler) removeCard(w http.ResponseWriter, r *http.Request) {
 	cardIDStr := chi.URLParam(r, "cardID")
 	cardID, err := strconv.Atoi(cardIDStr)
@@ -93,6 +132,16 @@ func (h *Handler) removeCard(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, http.StatusNoContent, nil)
 }
 
+// getCardsByCollectionID returns all cards from collection.
+// @Summary Get cards by collection
+// @Tags cards
+// @Security BearerAuth
+// @Produce json
+// @Param collectionID path int true "collection id"
+// @Success 200 {object} schemas.GetCardByCollectionIDResp
+// @Failure 400 {object} util.ErrorResponse
+// @Failure 401 {object} util.ErrorResponse
+// @Router /collections/{collectionID}/cards/ [get]
 func (h *Handler) getCardsByCollectionID(w http.ResponseWriter, r *http.Request) {
 	collectionIDStr := chi.URLParam(r, "collectionID")
 	collectionID, err := strconv.Atoi(collectionIDStr)

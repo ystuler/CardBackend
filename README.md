@@ -168,3 +168,16 @@ Content-Type: application/json
 ```bash
 go test ./...
 ```
+
+## Swagger (автогенерация)
+Swagger теперь генерируется из аннотаций в хендлерах и `cmd/main.go`.
+
+Сгенерировать документацию:
+
+```bash
+go run github.com/swaggo/swag/cmd/swag@v1.8.1 init -g cmd/main.go -o docs --parseInternal
+```
+
+После запуска приложения UI доступен по адресу:
+
+`/swagger/index.html`

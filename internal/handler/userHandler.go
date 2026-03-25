@@ -8,6 +8,17 @@ import (
 	"net/http"
 )
 
+// SignUp registers a new user.
+// @Summary Register user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body schemas.CreateUserReq true "signup payload"
+// @Success 201 {object} schemas.CreateUserResp
+// @Failure 400 {object} util.ErrorResponse
+// @Failure 422 {object} util.ErrorResponse
+// @Failure 500 {object} util.ErrorResponse
+// @Router /auth/signup [post]
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var userSchemaReq schemas.CreateUserReq
 
@@ -30,6 +41,17 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, http.StatusCreated, createdUser)
 }
 
+// SignIn authenticates user and returns JWT.
+// @Summary Login user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body schemas.SignInReq true "signin payload"
+// @Success 200 {object} schemas.SignInResp
+// @Failure 400 {object} util.ErrorResponse
+// @Failure 401 {object} util.ErrorResponse
+// @Failure 422 {object} util.ErrorResponse
+// @Router /auth/login [post]
 func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 	var userSchemaReq schemas.SignInReq
 
@@ -52,6 +74,15 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, http.StatusOK, resp)
 }
 
+// getProfile returns current user profile.
+// @Summary Get profile
+// @Tags profile
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} schemas.GetProfileResp
+// @Failure 401 {object} util.ErrorResponse
+// @Failure 500 {object} util.ErrorResponse
+// @Router /profile/ [get]
 func (h *Handler) getProfile(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserId(r.Context())
 	if err != nil {
@@ -68,6 +99,18 @@ func (h *Handler) getProfile(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, http.StatusOK, resp)
 }
 
+// updateUsername updates current user username.
+// @Summary Update username
+// @Tags profile
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body schemas.UpdateUsernameReq true "username payload"
+// @Success 200 {object} schemas.UpdateUsernameResp
+// @Failure 400 {object} util.ErrorResponse
+// @Failure 401 {object} util.ErrorResponse
+// @Failure 422 {object} util.ErrorResponse
+// @Router /profile/username [put]
 func (h *Handler) updateUsername(w http.ResponseWriter, r *http.Request) {
 	var updateUsernameReq schemas.UpdateUsernameReq
 
@@ -98,6 +141,18 @@ func (h *Handler) updateUsername(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, http.StatusOK, resp)
 }
 
+// updatePassword updates current user password.
+// @Summary Update password
+// @Tags profile
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param request body schemas.UpdatePasswordReq true "password payload"
+// @Success 204
+// @Failure 400 {object} util.ErrorResponse
+// @Failure 401 {object} util.ErrorResponse
+// @Failure 422 {object} util.ErrorResponse
+// @Router /profile/password [put]
 func (h *Handler) updatePassword(w http.ResponseWriter, r *http.Request) {
 	var updatePasswordReq schemas.UpdatePasswordReq
 	userID, err := middleware.GetUserId(r.Context())
@@ -123,6 +178,12 @@ func (h *Handler) updatePassword(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, http.StatusNoContent, nil)
 }
 
+// LogOut is a formal logout endpoint for JWT architecture.
+// @Summary Logout user
+// @Tags auth
+// @Produce json
+// @Success 200 {object} map[string]string
+// @Router /auth/logout [post]
 func (h *Handler) LogOut(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, http.StatusOK, map[string]string{"message": "logged out"})
 }
