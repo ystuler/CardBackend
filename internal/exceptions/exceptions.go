@@ -7,6 +7,7 @@ const (
 	ErrInvalidCredentials  = "invalid credentials"
 	ErrInvalidToken        = "invalid token"
 	ErrUnauthorized        = "unauthorized"
+	ErrForbidden           = "forbidden"
 	ErrMethodNotAllowed    = "method not allowed"
 	ErrResourceNotFound    = "resource not found"
 	ErrCollectionNotFound  = "collection not found"

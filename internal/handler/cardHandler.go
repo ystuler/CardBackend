@@ -2,6 +2,7 @@ package handler
 
 import (
 	"back/internal/exceptions"
+	"back/internal/middleware"
 	"back/internal/schemas"
 	"back/internal/util"
 	"net/http"
@@ -40,6 +41,17 @@ func (h *Handler) createCard(w http.ResponseWriter, r *http.Request) {
 	collectionID, err := strconv.Atoi(collectionIDStr)
 	if err != nil {
 		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidCollectionID)
+		return
+	}
+
+	userID, err := middleware.GetUserId(r.Context())
+	if err != nil {
+		util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
+		return
+	}
+
+	if err := h.services.EnsureCollectionAccess(collectionID, userID); err != nil {
+		writeAppError(w, err)
 		return
 	}
 
@@ -83,6 +95,17 @@ func (h *Handler) editCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID, err := middleware.GetUserId(r.Context())
+	if err != nil {
+		util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
+		return
+	}
+
+	if err := h.services.EnsureCardAccess(cardID, userID); err != nil {
+		writeAppError(w, err)
+		return
+	}
+
 	updatedCardSchemaReq.ID = cardID
 
 	if err := h.validator.ValidateWithDetailedErrors(&updatedCardSchemaReq); err != nil {
@@ -117,6 +140,17 @@ func (h *Handler) removeCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID, err := middleware.GetUserId(r.Context())
+	if err != nil {
+		util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
+		return
+	}
+
+	if err := h.services.EnsureCardAccess(cardID, userID); err != nil {
+		writeAppError(w, err)
+		return
+	}
+
 	removeCardReq := schemas.RemoveCardReq{ID: cardID}
 
 	if err := h.validator.ValidateWithDetailedErrors(&removeCardReq); err != nil {
@@ -148,6 +182,17 @@ func (h *Handler) getCardsByCollectionID(w http.ResponseWriter, r *http.Request)
 	collectionID, err := strconv.Atoi(collectionIDStr)
 	if err != nil {
 		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidCollectionID)
+		return
+	}
+
+	userID, err := middleware.GetUserId(r.Context())
+	if err != nil {
+		util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
+		return
+	}
+
+	if err := h.services.EnsureCollectionAccess(collectionID, userID); err != nil {
+		writeAppError(w, err)
 		return
 	}
 

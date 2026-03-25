@@ -1,10 +1,12 @@
 package service
 
 import (
+	"back/internal/exceptions"
 	"back/internal/models"
 	"back/internal/repository"
 	"back/internal/schemas"
 	"math/rand"
+	"net/http"
 	"time"
 )
 
@@ -14,6 +16,19 @@ type CollectionServiceImpl struct {
 
 func NewCollectionService(repo repository.CollectionRepository) *CollectionServiceImpl {
 	return &CollectionServiceImpl{repo: repo}
+}
+
+func (s *CollectionServiceImpl) EnsureCollectionAccess(collectionID, userID int) error {
+	collection, err := s.repo.GetCollectionByID(collectionID)
+	if err != nil {
+		return err
+	}
+
+	if collection.UserID != userID {
+		return exceptions.NewAppError(http.StatusForbidden, exceptions.ErrForbidden, nil)
+	}
+
+	return nil
 }
 
 func (s *CollectionServiceImpl) CreateCollection(collectionSchema *schemas.CreateCollectionReq, userID int) (*schemas.CreateCollectionResp, error) {

@@ -1,17 +1,38 @@
 package service
 
 import (
+	"back/internal/exceptions"
 	"back/internal/models"
 	"back/internal/repository"
 	"back/internal/schemas"
+	"net/http"
 )
 
 type CardServiceImpl struct {
-	repo repository.CardRepository
+	cardRepo       repository.CardRepository
+	collectionRepo repository.CollectionRepository
 }
 
-func NewCardService(repo repository.CardRepository) *CardServiceImpl {
-	return &CardServiceImpl{repo: repo}
+func NewCardService(cardRepo repository.CardRepository, collectionRepo repository.CollectionRepository) *CardServiceImpl {
+	return &CardServiceImpl{cardRepo: cardRepo, collectionRepo: collectionRepo}
+}
+
+func (s *CardServiceImpl) EnsureCardAccess(cardID, userID int) error {
+	card, err := s.cardRepo.GetCardByID(cardID)
+	if err != nil {
+		return err
+	}
+
+	collection, err := s.collectionRepo.GetCollectionByID(card.CollectionID)
+	if err != nil {
+		return err
+	}
+
+	if collection.UserID != userID {
+		return exceptions.NewAppError(http.StatusForbidden, exceptions.ErrForbidden, nil)
+	}
+
+	return nil
 }
 
 func (s *CardServiceImpl) CreateCard(cardSchema *schemas.CreateCardReq, collectionID int) (*schemas.CreateCardResp, error) {
@@ -21,7 +42,7 @@ func (s *CardServiceImpl) CreateCard(cardSchema *schemas.CreateCardReq, collecti
 		Answer:       cardSchema.Answer,
 	}
 
-	createdCard, err := s.repo.CreateCard(card)
+	createdCard, err := s.cardRepo.CreateCard(card)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +58,7 @@ func (s *CardServiceImpl) CreateCard(cardSchema *schemas.CreateCardReq, collecti
 }
 
 func (s *CardServiceImpl) UpdateCard(cardSchema *schemas.UpdateCardReq) (*schemas.UpdateCardResp, error) {
-	card, err := s.repo.GetCardByID(cardSchema.ID)
+	card, err := s.cardRepo.GetCardByID(cardSchema.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +71,7 @@ func (s *CardServiceImpl) UpdateCard(cardSchema *schemas.UpdateCardReq) (*schema
 		card.Answer = *cardSchema.Answer
 	}
 
-	newCard, err := s.repo.UpdateCard(card)
+	newCard, err := s.cardRepo.UpdateCard(card)
 	if err != nil {
 		return nil, err
 	}
@@ -64,11 +85,11 @@ func (s *CardServiceImpl) UpdateCard(cardSchema *schemas.UpdateCardReq) (*schema
 }
 
 func (s *CardServiceImpl) RemoveCard(cardSchema *schemas.RemoveCardReq) error {
-	card, err := s.repo.GetCardByID(cardSchema.ID)
+	card, err := s.cardRepo.GetCardByID(cardSchema.ID)
 	if err != nil {
 		return err
 	}
-	err = s.repo.RemoveCard(card)
+	err = s.cardRepo.RemoveCard(card)
 	if err != nil {
 		return err
 	}
@@ -76,7 +97,7 @@ func (s *CardServiceImpl) RemoveCard(cardSchema *schemas.RemoveCardReq) error {
 }
 
 func (s *CardServiceImpl) GetCardsByCollectionID(collectionID int) (*schemas.GetCardByCollectionIDResp, error) {
-	allCards, err := s.repo.GetCardsByCollectionID(collectionID)
+	allCards, err := s.cardRepo.GetCardsByCollectionID(collectionID)
 	if err != nil {
 		return nil, err
 	}

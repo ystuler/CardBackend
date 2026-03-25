@@ -70,6 +70,17 @@ func (h *Handler) getCollectionByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID, err := middleware.GetUserId(r.Context())
+	if err != nil {
+		util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
+		return
+	}
+
+	if err := h.services.EnsureCollectionAccess(collectionID, userID); err != nil {
+		writeAppError(w, err)
+		return
+	}
+
 	collection, err := h.services.GetCollectionByID(collectionID)
 	if err != nil {
 		writeAppError(w, err)
@@ -106,6 +117,18 @@ func (h *Handler) editCollection(w http.ResponseWriter, r *http.Request) {
 		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidCollectionID)
 		return
 	}
+
+	userID, err := middleware.GetUserId(r.Context())
+	if err != nil {
+		util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
+		return
+	}
+
+	if err := h.services.EnsureCollectionAccess(collectionID, userID); err != nil {
+		writeAppError(w, err)
+		return
+	}
+
 	updatedCollectionSchema.ID = collectionID
 
 	if err := h.validator.ValidateWithDetailedErrors(&updatedCollectionSchema); err != nil {
@@ -149,6 +172,18 @@ func (h *Handler) patchCollection(w http.ResponseWriter, r *http.Request) {
 		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidCollectionID)
 		return
 	}
+
+	userID, err := middleware.GetUserId(r.Context())
+	if err != nil {
+		util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
+		return
+	}
+
+	if err := h.services.EnsureCollectionAccess(collectionID, userID); err != nil {
+		writeAppError(w, err)
+		return
+	}
+
 	patchCollectionSchema.ID = collectionID
 
 	if patchCollectionSchema.Name == nil && patchCollectionSchema.Description == nil {
@@ -189,6 +224,18 @@ func (h *Handler) removeCollection(w http.ResponseWriter, r *http.Request) {
 		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidCollectionID)
 		return
 	}
+
+	userID, err := middleware.GetUserId(r.Context())
+	if err != nil {
+		util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
+		return
+	}
+
+	if err := h.services.EnsureCollectionAccess(collectionID, userID); err != nil {
+		writeAppError(w, err)
+		return
+	}
+
 	removedCollectionSchema.ID = collectionID
 
 	if err := h.validator.ValidateWithDetailedErrors(&removedCollectionSchema); err != nil {
@@ -249,6 +296,18 @@ func (h *Handler) startPractise(w http.ResponseWriter, r *http.Request) {
 		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidCollectionID)
 		return
 	}
+
+	userID, err := middleware.GetUserId(r.Context())
+	if err != nil {
+		util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
+		return
+	}
+
+	if err := h.services.EnsureCollectionAccess(collectionID, userID); err != nil {
+		writeAppError(w, err)
+		return
+	}
+
 	practiseSchemaReq.ID = collectionID
 
 	if err := h.validator.ValidateWithDetailedErrors(&practiseSchemaReq); err != nil {
