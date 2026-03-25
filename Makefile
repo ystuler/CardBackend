@@ -4,7 +4,7 @@ help:
 	@echo Available targets:
 	@echo   make run      - start backend
 	@echo   make test     - run all tests
-	@echo   make swagger  - generate Swagger docs from annotations
+	@echo   make swagger  - generate root swagger.yaml from annotations
 	@echo   make db-up    - start local PostgreSQL in Docker
 	@echo   make db-down  - stop local Docker services
 	@echo   make db-logs  - show PostgreSQL logs
@@ -18,7 +18,7 @@ test:
 	go test ./...
 
 swagger:
-	go run github.com/swaggo/swag/cmd/swag@v1.8.1 init -g cmd/main.go -o docs --parseInternal
+	go run github.com/swaggo/swag/cmd/swag@v1.8.1 init -g cmd/main.go -o . -ot yaml --parseInternal
 
 db-up:
 	docker compose up -d db
