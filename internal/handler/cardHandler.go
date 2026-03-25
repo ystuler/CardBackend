@@ -72,7 +72,7 @@ func (h *Handler) createCard(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Param cardID path int true "card id"
-// @Param request body schemas.UpdateCardReq true "card payload"
+// @Param request body schemas.UpdateCardBody true "card payload"
 // @Success 200 {object} schemas.UpdateCardResp
 // @Failure 400 {object} util.ErrorResponse
 // @Failure 401 {object} util.ErrorResponse
@@ -81,9 +81,9 @@ func (h *Handler) createCard(w http.ResponseWriter, r *http.Request) {
 // @Router /cards/{cardID}/ [put]
 // @Router /cards/{cardID}/ [patch]
 func (h *Handler) editCard(w http.ResponseWriter, r *http.Request) {
-	var updatedCardSchemaReq schemas.UpdateCardReq
+	var updateCardBody schemas.UpdateCardBody
 
-	if err := util.DecodeJSONRequest(r, &updatedCardSchemaReq); err != nil {
+	if err := util.DecodeJSONRequest(r, &updateCardBody); err != nil {
 		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
 	}
@@ -106,7 +106,11 @@ func (h *Handler) editCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedCardSchemaReq.ID = cardID
+	updatedCardSchemaReq := schemas.UpdateCardReq{
+		ID:       cardID,
+		Question: updateCardBody.Question,
+		Answer:   updateCardBody.Answer,
+	}
 
 	if err := h.validator.ValidateWithDetailedErrors(&updatedCardSchemaReq); err != nil {
 		util.WriteError(w, http.StatusUnprocessableEntity, err.Error())

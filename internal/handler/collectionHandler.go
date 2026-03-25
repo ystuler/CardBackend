@@ -97,7 +97,7 @@ func (h *Handler) getCollectionByID(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Param collectionID path int true "collection id"
-// @Param request body schemas.UpdateCollectionReq true "collection payload"
+// @Param request body schemas.UpdateCollectionBody true "collection payload"
 // @Success 200 {object} schemas.UpdateCollectionResp
 // @Failure 400 {object} util.ErrorResponse
 // @Failure 401 {object} util.ErrorResponse
@@ -105,9 +105,9 @@ func (h *Handler) getCollectionByID(w http.ResponseWriter, r *http.Request) {
 // @Failure 422 {object} util.ErrorResponse
 // @Router /collections/{collectionID}/ [put]
 func (h *Handler) editCollection(w http.ResponseWriter, r *http.Request) {
-	var updatedCollectionSchema schemas.UpdateCollectionReq
+	var updateCollectionBody schemas.UpdateCollectionBody
 
-	if err := util.DecodeJSONRequest(r, &updatedCollectionSchema); err != nil {
+	if err := util.DecodeJSONRequest(r, &updateCollectionBody); err != nil {
 		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
 	}
@@ -129,7 +129,11 @@ func (h *Handler) editCollection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedCollectionSchema.ID = collectionID
+	updatedCollectionSchema := schemas.UpdateCollectionReq{
+		ID:          collectionID,
+		Name:        updateCollectionBody.Name,
+		Description: updateCollectionBody.Description,
+	}
 
 	if err := h.validator.ValidateWithDetailedErrors(&updatedCollectionSchema); err != nil {
 		util.WriteError(w, http.StatusUnprocessableEntity, err.Error())
@@ -152,7 +156,7 @@ func (h *Handler) editCollection(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Param collectionID path int true "collection id"
-// @Param request body schemas.PatchCollectionReq true "collection payload"
+// @Param request body schemas.PatchCollectionBody true "collection payload"
 // @Success 200 {object} schemas.UpdateCollectionResp
 // @Failure 400 {object} util.ErrorResponse
 // @Failure 401 {object} util.ErrorResponse
@@ -160,9 +164,9 @@ func (h *Handler) editCollection(w http.ResponseWriter, r *http.Request) {
 // @Failure 422 {object} util.ErrorResponse
 // @Router /collections/{collectionID}/ [patch]
 func (h *Handler) patchCollection(w http.ResponseWriter, r *http.Request) {
-	var patchCollectionSchema schemas.PatchCollectionReq
+	var patchCollectionBody schemas.PatchCollectionBody
 
-	if err := util.DecodeJSONRequest(r, &patchCollectionSchema); err != nil {
+	if err := util.DecodeJSONRequest(r, &patchCollectionBody); err != nil {
 		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
 	}
@@ -184,7 +188,11 @@ func (h *Handler) patchCollection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	patchCollectionSchema.ID = collectionID
+	patchCollectionSchema := schemas.PatchCollectionReq{
+		ID:          collectionID,
+		Name:        patchCollectionBody.Name,
+		Description: patchCollectionBody.Description,
+	}
 
 	if patchCollectionSchema.Name == nil && patchCollectionSchema.Description == nil {
 		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidRequestBody)

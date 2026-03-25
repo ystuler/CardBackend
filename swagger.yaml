@@ -116,16 +116,12 @@ definitions:
       message:
         type: string
     type: object
-  schemas.PatchCollectionReq:
+  schemas.PatchCollectionBody:
     properties:
       description:
         type: string
-      id:
-        type: integer
       name:
         type: string
-    required:
-    - id
     type: object
   schemas.Profile:
     properties:
@@ -160,16 +156,12 @@ definitions:
           $ref: '#/definitions/schemas.CardsByCollectionID'
         type: array
     type: object
-  schemas.UpdateCardReq:
+  schemas.UpdateCardBody:
     properties:
       answer:
         type: string
-      id:
-        type: integer
       question:
         type: string
-    required:
-    - id
     type: object
   schemas.UpdateCardResp:
     properties:
@@ -182,16 +174,13 @@ definitions:
       question:
         type: string
     type: object
-  schemas.UpdateCollectionReq:
+  schemas.UpdateCollectionBody:
     properties:
       description:
         type: string
-      id:
-        type: integer
       name:
         type: string
     required:
-    - id
     - name
     type: object
   schemas.UpdateCollectionResp:
@@ -363,7 +352,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/schemas.UpdateCardReq'
+          $ref: '#/definitions/schemas.UpdateCardBody'
       produces:
       - application/json
       responses:
@@ -406,7 +395,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/schemas.UpdateCardReq'
+          $ref: '#/definitions/schemas.UpdateCardBody'
       produces:
       - application/json
       responses:
@@ -570,7 +559,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/schemas.PatchCollectionReq'
+          $ref: '#/definitions/schemas.PatchCollectionBody'
       produces:
       - application/json
       responses:
@@ -613,7 +602,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/schemas.UpdateCollectionReq'
+          $ref: '#/definitions/schemas.UpdateCollectionBody'
       produces:
       - application/json
       responses:
