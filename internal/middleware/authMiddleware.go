@@ -29,19 +29,12 @@ func UserIdentity(next http.Handler) http.Handler {
 			return
 		}
 
-		token := headerParts[1]
-
-		if len(token) == 0 {
+		if len(headerParts[1]) == 0 {
 			util.WriteError(w, http.StatusUnauthorized, exceptions.ErrUnauthorized)
 			return
 		}
 
-		if util.IsTokenRevoked(token) {
-			util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
-			return
-		}
-
-		claims, err := util.ParseToken(token)
+		claims, err := util.ParseToken(headerParts[1])
 		if err != nil {
 			util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
 			return

@@ -22,6 +22,10 @@ type SignInResp struct {
 	Username string `json:"username"`
 }
 
+type LogOutResp struct {
+	Message string `json:"message"`
+}
+
 type Profile struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
