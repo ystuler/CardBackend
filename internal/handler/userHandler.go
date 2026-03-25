@@ -150,26 +150,31 @@ func (h *Handler) updateUsername(w http.ResponseWriter, r *http.Request) {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body schemas.UpdatePasswordReq true "password payload"
+// @Param request body schemas.UpdatePasswordBody true "password payload"
 // @Success 204
 // @Failure 400 {object} util.ErrorResponse
 // @Failure 401 {object} util.ErrorResponse
 // @Failure 422 {object} util.ErrorResponse
 // @Router /profile/password [put]
 func (h *Handler) updatePassword(w http.ResponseWriter, r *http.Request) {
-	var updatePasswordReq schemas.UpdatePasswordReq
+	var updatePasswordBody schemas.UpdatePasswordBody
 	userID, err := middleware.GetUserId(r.Context())
 	if err != nil {
 		util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
 		return
 	}
 
-	updatePasswordReq.ID = userID
-
-	if err := util.DecodeJSONRequest(r, &updatePasswordReq); err != nil {
+	if err := util.DecodeJSONRequest(r, &updatePasswordBody); err != nil {
 		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
 	}
+
+	updatePasswordReq := schemas.UpdatePasswordReq{
+		ID:          userID,
+		OldPassword: updatePasswordBody.OldPassword,
+		NewPassword: updatePasswordBody.NewPassword,
+	}
+
 	if err := h.validator.ValidateWithDetailedErrors(&updatePasswordReq); err != nil {
 		util.WriteError(w, http.StatusUnprocessableEntity, err.Error())
 		return

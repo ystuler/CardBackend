@@ -205,16 +205,13 @@ definitions:
       name:
         type: string
     type: object
-  schemas.UpdatePasswordReq:
+  schemas.UpdatePasswordBody:
     properties:
-      id:
-        type: integer
       new_password:
         type: string
       old_password:
         type: string
     required:
-    - id
     - new_password
     - old_password
     type: object
@@ -776,7 +773,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/schemas.UpdatePasswordReq'
+          $ref: '#/definitions/schemas.UpdatePasswordBody'
       produces:
       - application/json
       responses:

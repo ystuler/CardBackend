@@ -53,6 +53,11 @@ type UpdateUsernameResp struct {
 	Username string `json:"username"`
 }
 
+type UpdatePasswordBody struct {
+	OldPassword string `json:"old_password" validate:"required"`
+	NewPassword string `json:"new_password" validate:"required"`
+}
+
 type UpdatePasswordReq struct {
 	ID          int    `validate:"required,gt=0"`
 	OldPassword string `json:"old_password" validate:"required"`
