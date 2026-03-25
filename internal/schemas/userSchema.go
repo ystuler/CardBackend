@@ -39,6 +39,10 @@ type GetProfileResp struct {
 	Profile Profile `json:"profile"`
 }
 
+type UpdateUsernameBody struct {
+	Username string `json:"username" validate:"required"`
+}
+
 type UpdateUsernameReq struct {
 	ID       int    `validate:"required,gt=0"`
 	Username string `json:"username" validate:"required"`

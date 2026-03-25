@@ -218,14 +218,11 @@ definitions:
     - new_password
     - old_password
     type: object
-  schemas.UpdateUsernameReq:
+  schemas.UpdateUsernameBody:
     properties:
-      id:
-        type: integer
       username:
         type: string
     required:
-    - id
     - username
     type: object
   schemas.UpdateUsernameResp:
@@ -240,6 +237,7 @@ definitions:
       error:
         type: string
     type: object
+host: localhost:8000
 info:
   contact: {}
   description: REST API for flashcard learning platform.
@@ -811,7 +809,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/schemas.UpdateUsernameReq'
+          $ref: '#/definitions/schemas.UpdateUsernameBody'
       produces:
       - application/json
       responses:

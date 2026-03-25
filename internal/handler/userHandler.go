@@ -105,14 +105,14 @@ func (h *Handler) getProfile(w http.ResponseWriter, r *http.Request) {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body schemas.UpdateUsernameReq true "username payload"
+// @Param request body schemas.UpdateUsernameBody true "username payload"
 // @Success 200 {object} schemas.UpdateUsernameResp
 // @Failure 400 {object} util.ErrorResponse
 // @Failure 401 {object} util.ErrorResponse
 // @Failure 422 {object} util.ErrorResponse
 // @Router /profile/username [put]
 func (h *Handler) updateUsername(w http.ResponseWriter, r *http.Request) {
-	var updateUsernameReq schemas.UpdateUsernameReq
+	var updateUsernameBody schemas.UpdateUsernameBody
 
 	userID, err := middleware.GetUserId(r.Context())
 	if err != nil {
@@ -120,11 +120,14 @@ func (h *Handler) updateUsername(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updateUsernameReq.ID = userID
-
-	if err := util.DecodeJSONRequest(r, &updateUsernameReq); err != nil {
+	if err := util.DecodeJSONRequest(r, &updateUsernameBody); err != nil {
 		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
+	}
+
+	updateUsernameReq := schemas.UpdateUsernameReq{
+		ID:       userID,
+		Username: updateUsernameBody.Username,
 	}
 
 	if err := h.validator.ValidateWithDetailedErrors(&updateUsernameReq); err != nil {
