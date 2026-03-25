@@ -1,52 +1,170 @@
 # Flashcard Learning Backend API
 
-## 📚 Project Overview
-A REST API backend for a digital flashcard learning platform built with Go. Users can create personal collections of flashcards, manage their study materials, and practice with randomized card sequences for effective learning.
+REST API для платформы карточек (flashcards) на Go.
 
-## 🎯 Core Functionality
-- **User Authentication**: JWT-based registration and login system
-- **Collection Management**: Create, read, update, delete flashcard collections
-- **Card Management**: Add, edit, remove individual flashcards within collections
-- **Practice Mode**: Random card shuffling for study sessions
-- **Profile Management**: Update username and password
+## Предметная область
+Пользователь регистрируется и работает со своими коллекциями карточек.
+Внутри коллекций можно создавать карточки вопрос/ответ и запускать тренировку в случайном порядке.
 
-## 🏗️ Architecture
-**Clean Architecture Pattern**: Handler → Service → Repository → Database
-- **Handler Layer**: HTTP request/response handling with Chi router
-- **Service Layer**: Business logic implementation
-- **Repository Layer**: Data access abstraction with GORM
-- **Database**: PostgreSQL with cascade delete relationships
+Основная сущность для CRUD: `collection`.
 
-## 📊 Data Model
+## Технологии
+- Go 1.22+
+- Chi (router)
+- GORM
+- PostgreSQL
+- JWT (auth)
+- go-playground/validator
+- Docker Compose
+
+## Архитектура
+Handler -> Service -> Repository -> Database
+
+## Быстрый старт
+1. Запуск БД:
+
+```bash
+docker compose up -d db
 ```
-Users (1:N) Collections (1:N) Cards
-- id, username, password_hash    - id, name, description, user_id    - id, question, answer, collection_id
+
+2. Запуск приложения:
+
+```bash
+go run ./cmd
 ```
 
-## 🔧 Technology Stack
-- **Language**: Go 1.22.1
-- **Framework**: Chi router, GORM ORM
-- **Database**: PostgreSQL
-- **Authentication**: JWT tokens with bcrypt password hashing
-- **Validation**: go-playground/validator
-- **Containerization**: Docker & Docker Compose
-- **Testing**: testify framework
+По умолчанию приложение слушает `localhost:8000`.
 
-## 🚀 API Endpoints
-- `POST /auth/signup` - User registration
-- `POST /auth/login` - User authentication
-- `GET /collections` - Get user collections
-- `POST /collections` - Create new collection
-- `POST /collections/{id}/cards` - Add card to collection
-- `GET /collections/{id}/train` - Start practice session (randomized cards)
-- `PUT/DELETE /cards/{id}` - Update/delete specific cards
+## Переменные окружения
+Используется префикс `APP_`:
+- `APP_SERVER_IP`
+- `APP_SERVER_PORT`
+- `APP_DATABASE_HOST`
+- `APP_DATABASE_PORT`
+- `APP_DATABASE_USER`
+- `APP_DATABASE_PASSWORD`
+- `APP_DATABASE_DBNAME`
+- `APP_DATABASE_SSLMODE`
+- `APP_DATABASE_TIMEZONE`
+- `APP_JWT_SIGNINGKEY`
 
-## 🎲 Key Features
-- **Random Practice**: Cards are shuffled randomly for each practice session
-- **Secure Authentication**: JWT tokens with configurable expiration
-- **Data Validation**: Request validation at multiple layers
-- **Error Handling**: Comprehensive error responses with proper HTTP status codes
-- **Cascade Operations**: Deleting collections automatically removes associated cards
+## Маршруты API
 
-## 💡 Use Cases
-Perfect for students, language learners, or anyone who wants to create digital flashcards for memorization and spaced repetition learning.
+### Auth
+- `POST /auth/signup`
+- `POST /auth/login`
+- `POST /auth/logout`
+
+### Profile (требуется Bearer token)
+- `GET /profile/`
+- `PUT /profile/username`
+- `PUT /profile/password`
+
+### Collections (требуется Bearer token)
+- `GET /collections/`
+- `POST /collections/`
+- `GET /collections/{collectionID}/`
+- `PUT /collections/{collectionID}/`
+- `PATCH /collections/{collectionID}/`
+- `DELETE /collections/{collectionID}/`
+- `GET /collections/{collectionID}/train`
+
+### Cards (требуется Bearer token)
+- `GET /collections/{collectionID}/cards/`
+- `POST /collections/{collectionID}/cards/`
+- `PUT /cards/{cardID}/`
+- `PATCH /cards/{cardID}/`
+- `DELETE /cards/{cardID}/`
+
+## Примеры запросов/ответов
+
+Регистрация:
+
+```http
+POST /auth/signup
+Content-Type: application/json
+
+{
+	"username": "alice",
+	"password": "alice_pass"
+}
+```
+
+```json
+{
+	"id": 1,
+	"username": "alice",
+	"token": "<jwt>"
+}
+```
+
+Создание коллекции:
+
+```http
+POST /collections/
+Authorization: Bearer <jwt>
+Content-Type: application/json
+
+{
+	"name": "English A2",
+	"description": "Basic words"
+}
+```
+
+```json
+{
+	"id": 3,
+	"name": "English A2",
+	"description": "Basic words",
+	"createdAt": "2026-03-25T18:00:00Z"
+}
+```
+
+Частичное обновление коллекции:
+
+```http
+PATCH /collections/3/
+Authorization: Bearer <jwt>
+Content-Type: application/json
+
+{
+	"name": "English A2 Updated"
+}
+```
+
+```json
+{
+	"id": 3,
+	"name": "English A2 Updated",
+	"description": "Basic words",
+	"createdAt": "2026-03-25T18:00:00Z"
+}
+```
+
+## Единый формат ошибок
+Все ошибки отдаются в JSON:
+
+```json
+{
+	"error": "error message"
+}
+```
+
+Примеры:
+- 400 Bad Request: невалидный JSON, неверный формат path-параметра
+- 401 Unauthorized: отсутствует/невалидный токен
+- 404 Not Found: сущность не найдена
+- 405 Method Not Allowed: метод не поддерживается
+- 422 Unprocessable Entity: JSON валиден, но не проходит валидацию
+- 500 Internal Server Error: внутренняя ошибка
+
+## Валидация
+- обязательные поля отмечены `validate:"required"`
+- ID-поля проверяются как `gt=0`
+- неизвестные поля в JSON отклоняются (`DisallowUnknownFields`)
+
+## Тесты
+
+```bash
+go test ./...
+```

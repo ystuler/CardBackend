@@ -10,16 +10,23 @@ type ErrorResponse struct {
 }
 
 func WriteJSON(w http.ResponseWriter, status int, payload interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-
 	if payload == nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(payload); err != nil {
-		http.Error(w, `{"error":"internal server error"}`, http.StatusInternalServerError)
+	body, err := json.Marshal(payload)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(`{"error":"internal server error"}`))
+		return
 	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	_, _ = w.Write(append(body, '\n'))
 }
 
 func WriteError(w http.ResponseWriter, status int, message string) {

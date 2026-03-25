@@ -43,7 +43,7 @@ func NewConfig() *Config {
 	viper.SetDefault("database.port", "5432")
 	viper.SetDefault("database.user", "admin")
 	viper.SetDefault("database.password", "root")
-	viper.SetDefault("database.dbname", "memoryCards")
+	viper.SetDefault("database.dbname", "memorycards")
 	viper.SetDefault("database.sslmode", "disable")
 	viper.SetDefault("database.timezone", "Europe/Moscow")
 	viper.SetDefault("JWT.signingkey", "SecretKey")
@@ -55,6 +55,7 @@ func NewConfig() *Config {
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
+	viper.AddConfigPath("../config/")
 	viper.AddConfigPath("config/")
 
 	err := viper.ReadInConfig()
