@@ -2,10 +2,11 @@ package db
 
 import (
 	"back/internal/models"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 	"log"
 	"time"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type Database struct {
@@ -13,7 +14,7 @@ type Database struct {
 }
 
 func NewDatabase(dsn string) (*Database, error) {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{PrepareStmt: true})
 	if err != nil {
 		return nil, err
 	}
