@@ -24,17 +24,27 @@ func UserIdentity(next http.Handler) http.Handler {
 		}
 
 		headerParts := strings.Split(header, " ")
-		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
+		var token string
+		switch len(headerParts) {
+		case 1:
+			token = headerParts[0]
+		case 2:
+			if headerParts[0] != "Bearer" {
+				util.WriteError(w, http.StatusUnauthorized, exceptions.ErrUnauthorized)
+				return
+			}
+			token = headerParts[1]
+		default:
 			util.WriteError(w, http.StatusUnauthorized, exceptions.ErrUnauthorized)
 			return
 		}
 
-		if len(headerParts[1]) == 0 {
+		if len(token) == 0 {
 			util.WriteError(w, http.StatusUnauthorized, exceptions.ErrUnauthorized)
 			return
 		}
 
-		claims, err := util.ParseToken(headerParts[1])
+		claims, err := util.ParseToken(token)
 		if err != nil {
 			util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
 			return

@@ -14,6 +14,7 @@ import (
 // @title Card Backend API
 // @version 1.1
 // @description REST API for flashcard learning platform.
+// @host localhost:8000
 // @BasePath /
 // @schemes http
 // @securityDefinitions.apikey BearerAuth
