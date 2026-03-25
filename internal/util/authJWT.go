@@ -3,6 +3,8 @@ package util
 import (
 	"back/config"
 	"back/internal/models"
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
 	"strconv"
@@ -10,8 +12,14 @@ import (
 )
 
 func GenerateJWT(userModel *models.User) (string, error) {
+	tokenID, err := generateTokenID()
+	if err != nil {
+		return "", err
+	}
+
 	claims := &jwt.RegisteredClaims{
 		Subject:   strconv.Itoa(userModel.ID),
+		ID:        tokenID,
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 	}
@@ -37,4 +45,12 @@ func ParseToken(accessToken string) (*jwt.RegisteredClaims, error) {
 	}
 
 	return nil, errors.New("invalid token")
+}
+
+func generateTokenID() (string, error) {
+	b := make([]byte, 16)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(b), nil
 }

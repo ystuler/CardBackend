@@ -3,7 +3,6 @@ package main
 import (
 	"back/config"
 	"back/db"
-	_ "back/docs"
 	"back/internal/handler"
 	"back/internal/repository"
 	"back/internal/service"

@@ -10,7 +10,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type Handler struct {
@@ -42,8 +41,6 @@ func (h *Handler) InitRoutes() *chi.Mux {
 	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
 		util.WriteError(w, http.StatusMethodNotAllowed, exceptions.ErrMethodNotAllowed)
 	})
-
-	r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL("/swagger/doc.json")))
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/signup", h.SignUp)

@@ -6,6 +6,8 @@ import (
 	"back/internal/schemas"
 	"back/internal/util"
 	"net/http"
+	"strings"
+	"time"
 )
 
 // SignUp registers a new user.
@@ -183,7 +185,33 @@ func (h *Handler) updatePassword(w http.ResponseWriter, r *http.Request) {
 // @Tags auth
 // @Produce json
 // @Success 200 {object} map[string]string
+// @Failure 401 {object} util.ErrorResponse
 // @Router /auth/logout [post]
 func (h *Handler) LogOut(w http.ResponseWriter, r *http.Request) {
+	header := r.Header.Get("Authorization")
+	if header == "" {
+		util.WriteError(w, http.StatusUnauthorized, exceptions.ErrUnauthorized)
+		return
+	}
+
+	parts := strings.Split(header, " ")
+	if len(parts) != 2 || parts[0] != "Bearer" || parts[1] == "" {
+		util.WriteError(w, http.StatusUnauthorized, exceptions.ErrUnauthorized)
+		return
+	}
+
+	token := parts[1]
+	claims, err := util.ParseToken(token)
+	if err != nil {
+		util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
+		return
+	}
+
+	expiresAt := time.Now().Add(72 * time.Hour)
+	if claims.ExpiresAt != nil {
+		expiresAt = claims.ExpiresAt.Time
+	}
+
+	util.RevokeToken(token, expiresAt)
 	util.WriteJSON(w, http.StatusOK, map[string]string{"message": "logged out"})
 }
