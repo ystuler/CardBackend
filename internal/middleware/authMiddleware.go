@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"back/internal/exceptions"
 	"back/internal/util"
 	"context"
 	"errors"
@@ -18,30 +19,30 @@ func UserIdentity(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		header := r.Header.Get(authorizationHeader)
 		if header == "" {
-			http.Error(w, "empty auth header", http.StatusUnauthorized)
+			util.WriteError(w, http.StatusUnauthorized, exceptions.ErrUnauthorized)
 			return
 		}
 
 		headerParts := strings.Split(header, " ")
 		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-			http.Error(w, "invalid auth header", http.StatusUnauthorized)
+			util.WriteError(w, http.StatusUnauthorized, exceptions.ErrUnauthorized)
 			return
 		}
 
 		if len(headerParts[1]) == 0 {
-			http.Error(w, "token is empty", http.StatusUnauthorized)
+			util.WriteError(w, http.StatusUnauthorized, exceptions.ErrUnauthorized)
 			return
 		}
 
 		claims, err := util.ParseToken(headerParts[1])
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
+			util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
 			return
 		}
 
 		userId, err := strconv.Atoi(claims.Subject)
 		if err != nil {
-			http.Error(w, "invalid user id in token", http.StatusUnauthorized)
+			util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
 			return
 		}
 

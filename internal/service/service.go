@@ -15,7 +15,9 @@ type Authorization interface {
 
 type Collection interface {
 	CreateCollection(collectionSchema *schemas.CreateCollectionReq, userID int) (*schemas.CreateCollectionResp, error)
+	GetCollectionByID(collectionID int) (*schemas.GetCollectionByIDResp, error)
 	UpdateCollection(collectionSchema *schemas.UpdateCollectionReq) (*schemas.UpdateCollectionResp, error)
+	PatchCollection(collectionSchema *schemas.PatchCollectionReq) (*schemas.UpdateCollectionResp, error)
 	RemoveCollection(collectionSchema *schemas.RemoveCollectionReq) error
 	GetAllCollections(userID int) (*schemas.AllCollectionsResp, error)
 	TrainCards(req *schemas.TrainSchemaReq) (*schemas.TrainSchemaResp, error)

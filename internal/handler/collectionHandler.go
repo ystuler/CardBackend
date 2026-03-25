@@ -5,7 +5,6 @@ import (
 	"back/internal/middleware"
 	"back/internal/schemas"
 	"back/internal/util"
-	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
@@ -14,67 +13,108 @@ import (
 func (h *Handler) createCollection(w http.ResponseWriter, r *http.Request) {
 	var collectionSchemaReq schemas.CreateCollectionReq
 
-	if err := util.DecodeJSON(w, r, &collectionSchemaReq); err != nil {
-		http.Error(w, exceptions.ErrInvalidJSONFormat, http.StatusBadRequest)
+	if err := util.DecodeJSONRequest(r, &collectionSchemaReq); err != nil {
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
 	}
 
 	if err := h.validator.ValidateWithDetailedErrors(&collectionSchemaReq); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		util.WriteError(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
 
 	userID, err := middleware.GetUserId(r.Context())
 	if err != nil {
-		http.Error(w, exceptions.ErrInvalidToken, http.StatusUnauthorized)
+		util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
 		return
 	}
 
 	createdCollection, err := h.services.CreateCollection(&collectionSchemaReq, userID)
 	if err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
+		writeAppError(w, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	err = json.NewEncoder(w).Encode(createdCollection)
+	util.WriteJSON(w, http.StatusCreated, createdCollection)
+}
+
+func (h *Handler) getCollectionByID(w http.ResponseWriter, r *http.Request) {
+	collectionID, err := strconv.Atoi(chi.URLParam(r, "collectionID"))
 	if err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidCollectionID)
 		return
 	}
+
+	collection, err := h.services.GetCollectionByID(collectionID)
+	if err != nil {
+		writeAppError(w, err)
+		return
+	}
+
+	util.WriteJSON(w, http.StatusOK, collection)
 }
 
 func (h *Handler) editCollection(w http.ResponseWriter, r *http.Request) {
 	var updatedCollectionSchema schemas.UpdateCollectionReq
 
-	if err := util.DecodeJSON(w, r, &updatedCollectionSchema); err != nil {
-		http.Error(w, exceptions.ErrInvalidJSONFormat, http.StatusBadRequest)
+	if err := util.DecodeJSONRequest(r, &updatedCollectionSchema); err != nil {
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
 	}
 
 	collectionID, err := strconv.Atoi(chi.URLParam(r, "collectionID"))
 	if err != nil {
-		http.Error(w, exceptions.ErrInvalidCollectionID, http.StatusBadRequest)
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidCollectionID)
+		return
 	}
 	updatedCollectionSchema.ID = collectionID
 
 	if err := h.validator.ValidateWithDetailedErrors(&updatedCollectionSchema); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		util.WriteError(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
 
 	updatedCollection, err := h.services.UpdateCollection(&updatedCollectionSchema)
 	if err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
+		writeAppError(w, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(updatedCollection)
-	if err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
+	util.WriteJSON(w, http.StatusOK, updatedCollection)
+}
+
+func (h *Handler) patchCollection(w http.ResponseWriter, r *http.Request) {
+	var patchCollectionSchema schemas.PatchCollectionReq
+
+	if err := util.DecodeJSONRequest(r, &patchCollectionSchema); err != nil {
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
 	}
+
+	collectionID, err := strconv.Atoi(chi.URLParam(r, "collectionID"))
+	if err != nil {
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidCollectionID)
+		return
+	}
+	patchCollectionSchema.ID = collectionID
+
+	if patchCollectionSchema.Name == nil && patchCollectionSchema.Description == nil {
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidRequestBody)
+		return
+	}
+
+	if err := h.validator.ValidateWithDetailedErrors(&patchCollectionSchema); err != nil {
+		util.WriteError(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	updatedCollection, err := h.services.PatchCollection(&patchCollectionSchema)
+	if err != nil {
+		writeAppError(w, err)
+		return
+	}
+
+	util.WriteJSON(w, http.StatusOK, updatedCollection)
 }
 
 func (h *Handler) removeCollection(w http.ResponseWriter, r *http.Request) {
@@ -82,41 +122,38 @@ func (h *Handler) removeCollection(w http.ResponseWriter, r *http.Request) {
 
 	collectionID, err := strconv.Atoi(chi.URLParam(r, "collectionID"))
 	if err != nil {
-		http.Error(w, exceptions.ErrInvalidCollectionID, http.StatusBadRequest)
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidCollectionID)
+		return
 	}
 	removedCollectionSchema.ID = collectionID
 
 	if err := h.validator.ValidateWithDetailedErrors(&removedCollectionSchema); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		util.WriteError(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
 
 	err = h.services.RemoveCollection(&removedCollectionSchema)
 	if err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
+		writeAppError(w, err)
 		return
 	}
-	w.WriteHeader(http.StatusNoContent)
+	util.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) getAllCollections(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserId(r.Context())
 	if err != nil {
-		http.Error(w, exceptions.ErrInvalidToken, http.StatusUnauthorized)
+		util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
+		return
 	}
 
 	allCollections, err := h.services.GetAllCollections(userID)
 	if err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
+		writeAppError(w, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(allCollections)
-	if err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
-		return
-	}
+	util.WriteJSON(w, http.StatusOK, allCollections)
 
 }
 
@@ -125,26 +162,21 @@ func (h *Handler) startPractise(w http.ResponseWriter, r *http.Request) {
 
 	collectionID, err := strconv.Atoi(chi.URLParam(r, "collectionID"))
 	if err != nil {
-		http.Error(w, exceptions.ErrInvalidCollectionID, http.StatusBadRequest)
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidCollectionID)
 		return
 	}
 	practiseSchemaReq.ID = collectionID
 
 	if err := h.validator.ValidateWithDetailedErrors(&practiseSchemaReq); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		util.WriteError(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
 
 	randomCards, err := h.services.TrainCards(&practiseSchemaReq)
 	if err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
+		writeAppError(w, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(randomCards)
-	if err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
-		return
-	}
+	util.WriteJSON(w, http.StatusOK, randomCards)
 }

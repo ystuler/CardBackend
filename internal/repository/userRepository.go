@@ -1,8 +1,11 @@
 package repository
 
 import (
+	"back/internal/exceptions"
 	"back/internal/models"
+	"errors"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 type UserRepositoryImpl struct {
@@ -23,6 +26,9 @@ func (r *UserRepositoryImpl) CreateUser(user *models.User) (*models.User, error)
 func (r *UserRepositoryImpl) GetUserByUsername(username string) (*models.User, error) {
 	var user models.User
 	if err := r.db.Where("username= ?", username).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, exceptions.NewAppError(http.StatusNotFound, "user not found", err)
+		}
 		return nil, err
 	}
 	return &user, nil
@@ -31,6 +37,9 @@ func (r *UserRepositoryImpl) GetUserByUsername(username string) (*models.User, e
 func (r *UserRepositoryImpl) GetUserById(userId int) (*models.User, error) {
 	var user models.User
 	if err := r.db.Where("id = ?", userId).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, exceptions.NewAppError(http.StatusNotFound, "user not found", err)
+		}
 		return nil, err
 	}
 	return &user, nil

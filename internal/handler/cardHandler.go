@@ -4,7 +4,6 @@ import (
 	"back/internal/exceptions"
 	"back/internal/schemas"
 	"back/internal/util"
-	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
@@ -13,112 +12,100 @@ import (
 func (h *Handler) createCard(w http.ResponseWriter, r *http.Request) {
 	var cardSchemaReq schemas.CreateCardReq
 
-	if err := util.DecodeJSON(w, r, &cardSchemaReq); err != nil {
-		http.Error(w, exceptions.ErrInvalidJSONFormat, http.StatusBadRequest)
+	if err := util.DecodeJSONRequest(r, &cardSchemaReq); err != nil {
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
 	}
 
 	if err := h.validator.ValidateWithDetailedErrors(&cardSchemaReq); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		util.WriteError(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
 
 	collectionIDStr := chi.URLParam(r, "collectionID")
 	collectionID, err := strconv.Atoi(collectionIDStr)
 	if err != nil {
-		http.Error(w, exceptions.ErrInvalidCollectionID, http.StatusBadRequest)
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidCollectionID)
 		return
 	}
 
 	createdCard, err := h.services.CreateCard(&cardSchemaReq, collectionID)
 	if err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
+		writeAppError(w, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	if err := json.NewEncoder(w).Encode(createdCard); err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
-		return
-	}
+	util.WriteJSON(w, http.StatusCreated, createdCard)
 
 }
 
 func (h *Handler) editCard(w http.ResponseWriter, r *http.Request) {
 	var updatedCardSchemaReq schemas.UpdateCardReq
 
-	if err := util.DecodeJSON(w, r, &updatedCardSchemaReq); err != nil {
-		http.Error(w, exceptions.ErrInvalidJSONFormat, http.StatusBadRequest)
+	if err := util.DecodeJSONRequest(r, &updatedCardSchemaReq); err != nil {
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
 	}
 
 	cardIDStr := chi.URLParam(r, "cardID")
 	cardID, err := strconv.Atoi(cardIDStr)
 	if err != nil {
-		http.Error(w, exceptions.ErrInvalidCardID, http.StatusBadRequest)
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidCardID)
 		return
 	}
 
 	updatedCardSchemaReq.ID = cardID
 
 	if err := h.validator.ValidateWithDetailedErrors(&updatedCardSchemaReq); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		util.WriteError(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
 
 	updatedCard, err := h.services.UpdateCard(&updatedCardSchemaReq)
 	if err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
+		writeAppError(w, err)
 		return
 	}
-	w.WriteHeader(http.StatusAccepted)
-	if err := json.NewEncoder(w).Encode(updatedCard); err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
-		return
-	}
+	util.WriteJSON(w, http.StatusOK, updatedCard)
 }
 
 func (h *Handler) removeCard(w http.ResponseWriter, r *http.Request) {
 	cardIDStr := chi.URLParam(r, "cardID")
 	cardID, err := strconv.Atoi(cardIDStr)
 	if err != nil {
-		http.Error(w, exceptions.ErrInvalidCardID, http.StatusBadRequest)
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidCardID)
 		return
 	}
 
 	removeCardReq := schemas.RemoveCardReq{ID: cardID}
 
 	if err := h.validator.ValidateWithDetailedErrors(&removeCardReq); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		util.WriteError(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
 
 	err = h.services.RemoveCard(&removeCardReq)
 	if err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
+		writeAppError(w, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	util.WriteJSON(w, http.StatusNoContent, nil)
 }
 
 func (h *Handler) getCardsByCollectionID(w http.ResponseWriter, r *http.Request) {
 	collectionIDStr := chi.URLParam(r, "collectionID")
 	collectionID, err := strconv.Atoi(collectionIDStr)
 	if err != nil {
-		http.Error(w, "Invalid collection ID", http.StatusBadRequest)
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidCollectionID)
 		return
 	}
 
 	cards, err := h.services.GetCardsByCollectionID(collectionID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		writeAppError(w, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(cards); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	util.WriteJSON(w, http.StatusOK, cards)
 }

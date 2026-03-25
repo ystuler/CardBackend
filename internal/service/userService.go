@@ -7,6 +7,7 @@ import (
 	"back/internal/schemas"
 	"back/internal/util"
 	"errors"
+	"net/http"
 	"time"
 )
 
@@ -20,12 +21,20 @@ func NewAuthService(repo repository.UserRepository) *AuthenticationImpl {
 
 func (s *AuthenticationImpl) SignUp(userSchema *schemas.CreateUserReq) (*schemas.CreateUserResp, error) {
 	existingUser, err := s.repo.GetUserByUsername(userSchema.Username)
-
+	if err != nil {
+		var appErr *exceptions.AppError
+		if !errors.As(err, &appErr) || appErr.StatusCode != http.StatusNotFound {
+			return nil, err
+		}
+	}
 	if existingUser != nil {
-		return nil, errors.New(exceptions.ErrUserAlreadyExists)
+		return nil, exceptions.NewAppError(http.StatusUnprocessableEntity, exceptions.ErrUserAlreadyExists, nil)
 	}
 
 	hashedPassword, err := util.HashPassword(userSchema.Password)
+	if err != nil {
+		return nil, err
+	}
 
 	user := &models.User{
 		Username:     userSchema.Username,
@@ -56,12 +65,16 @@ func (s *AuthenticationImpl) SignIn(userSchema *schemas.SignInReq) (*schemas.Sig
 	existingUser, err := s.repo.GetUserByUsername(userSchema.Username)
 
 	if err != nil {
+		var appErr *exceptions.AppError
+		if errors.As(err, &appErr) && appErr.StatusCode == http.StatusNotFound {
+			return nil, exceptions.NewAppError(http.StatusUnauthorized, exceptions.ErrInvalidCredentials, err)
+		}
 		return nil, err
 	}
 
 	err = util.CheckPassword(userSchema.Password, existingUser.PasswordHash)
 	if err != nil {
-		return nil, errors.New("password does not match")
+		return nil, exceptions.NewAppError(http.StatusUnauthorized, exceptions.ErrInvalidCredentials, err)
 	}
 
 	generatedJWT, err := util.GenerateJWT(existingUser)
@@ -115,7 +128,7 @@ func (s *AuthenticationImpl) UpdatePassword(passwordSchema *schemas.UpdatePasswo
 	}
 
 	if err := util.CheckPassword(passwordSchema.OldPassword, user.PasswordHash); err != nil {
-		return errors.New("old password does not match")
+		return exceptions.NewAppError(http.StatusUnprocessableEntity, "old password does not match", err)
 	}
 
 	hashedPassword, err := util.HashPassword(passwordSchema.NewPassword)

@@ -37,6 +37,25 @@ func (s *CollectionServiceImpl) CreateCollection(collectionSchema *schemas.Creat
 	return &collectionResp, nil
 }
 
+func (s *CollectionServiceImpl) GetCollectionByID(collectionID int) (*schemas.GetCollectionByIDResp, error) {
+	collection, err := s.repo.GetCollectionByID(collectionID)
+	if err != nil {
+		return nil, err
+	}
+
+	description := ""
+	if collection.Description != nil {
+		description = *collection.Description
+	}
+
+	return &schemas.GetCollectionByIDResp{
+		ID:          collection.ID,
+		Name:        collection.Name,
+		Description: description,
+		CreatedAt:   collection.CreatedAt,
+	}, nil
+}
+
 func (s *CollectionServiceImpl) UpdateCollection(collectionSchema *schemas.UpdateCollectionReq) (*schemas.UpdateCollectionResp, error) {
 	collection, err := s.repo.GetCollectionByID(collectionSchema.ID)
 	if err != nil {
@@ -51,10 +70,48 @@ func (s *CollectionServiceImpl) UpdateCollection(collectionSchema *schemas.Updat
 		return nil, err
 	}
 
+	description := ""
+	if newCollection.Description != nil {
+		description = *newCollection.Description
+	}
+
 	updatedCollection := schemas.UpdateCollectionResp{
 		ID:          newCollection.ID,
 		Name:        newCollection.Name,
-		Description: *newCollection.Description,
+		Description: description,
+		CreatedAt:   newCollection.CreatedAt,
+	}
+	return &updatedCollection, nil
+}
+
+func (s *CollectionServiceImpl) PatchCollection(collectionSchema *schemas.PatchCollectionReq) (*schemas.UpdateCollectionResp, error) {
+	collection, err := s.repo.GetCollectionByID(collectionSchema.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	if collectionSchema.Name != nil {
+		collection.Name = *collectionSchema.Name
+	}
+
+	if collectionSchema.Description != nil {
+		collection.Description = collectionSchema.Description
+	}
+
+	newCollection, err := s.repo.UpdateCollection(collection)
+	if err != nil {
+		return nil, err
+	}
+
+	description := ""
+	if newCollection.Description != nil {
+		description = *newCollection.Description
+	}
+
+	updatedCollection := schemas.UpdateCollectionResp{
+		ID:          newCollection.ID,
+		Name:        newCollection.Name,
+		Description: description,
 		CreatedAt:   newCollection.CreatedAt,
 	}
 	return &updatedCollection, nil
@@ -81,10 +138,15 @@ func (s *CollectionServiceImpl) GetAllCollections(userID int) (*schemas.AllColle
 
 	collections := make([]schemas.AllCollections, len(*allCollections))
 	for i, collection := range *allCollections {
+		description := ""
+		if collection.Description != nil {
+			description = *collection.Description
+		}
+
 		collections[i] = schemas.AllCollections{
 			ID:          collection.ID,
 			Name:        collection.Name,
-			Description: *collection.Description,
+			Description: description,
 			CreatedAt:   collection.CreatedAt,
 		}
 	}

@@ -5,83 +5,67 @@ import (
 	"back/internal/middleware"
 	"back/internal/schemas"
 	"back/internal/util"
-	"encoding/json"
 	"net/http"
 )
 
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var userSchemaReq schemas.CreateUserReq
 
-	if err := util.DecodeJSON(w, r, &userSchemaReq); err != nil {
-		http.Error(w, exceptions.ErrInvalidJSONFormat, http.StatusBadRequest)
+	if err := util.DecodeJSONRequest(r, &userSchemaReq); err != nil {
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
 	}
 
 	if err := h.validator.ValidateWithDetailedErrors(&userSchemaReq); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		util.WriteError(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
 
 	createdUser, err := h.services.SignUp(&userSchemaReq)
 	if err != nil {
-		http.Error(w, exceptions.ErrUserAlreadyExists, http.StatusConflict)
+		writeAppError(w, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	err = json.NewEncoder(w).Encode(createdUser)
-	if err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
-		return
-	}
+	util.WriteJSON(w, http.StatusCreated, createdUser)
 }
 
 func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 	var userSchemaReq schemas.SignInReq
 
-	if err := util.DecodeJSON(w, r, &userSchemaReq); err != nil {
-		http.Error(w, exceptions.ErrInvalidJSONFormat, http.StatusBadRequest)
+	if err := util.DecodeJSONRequest(r, &userSchemaReq); err != nil {
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
 	}
 
 	if err := h.validator.ValidateWithDetailedErrors(&userSchemaReq); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		util.WriteError(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
 
 	resp, err := h.services.SignIn(&userSchemaReq)
 	if err != nil {
-		http.Error(w, exceptions.ErrInvalidCredentials, http.StatusUnauthorized)
+		writeAppError(w, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(resp)
-	if err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
-		return
-	}
+	util.WriteJSON(w, http.StatusOK, resp)
 }
 
 func (h *Handler) getProfile(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserId(r.Context())
 	if err != nil {
-		http.Error(w, exceptions.ErrInvalidToken, http.StatusUnauthorized)
+		util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
 		return
 	}
 
 	resp, err := h.services.GetProfile(userID)
 	if err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
+		writeAppError(w, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(resp)
-	if err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
-		return
-	}
+	util.WriteJSON(w, http.StatusOK, resp)
 }
 
 func (h *Handler) updateUsername(w http.ResponseWriter, r *http.Request) {
@@ -89,55 +73,56 @@ func (h *Handler) updateUsername(w http.ResponseWriter, r *http.Request) {
 
 	userID, err := middleware.GetUserId(r.Context())
 	if err != nil {
-		http.Error(w, exceptions.ErrInvalidToken, http.StatusUnauthorized)
+		util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
 		return
 	}
 
 	updateUsernameReq.ID = userID
 
-	if err := util.DecodeJSON(w, r, &updateUsernameReq); err != nil {
-		http.Error(w, exceptions.ErrInvalidJSONFormat, http.StatusBadRequest)
+	if err := util.DecodeJSONRequest(r, &updateUsernameReq); err != nil {
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
 	}
 
 	if err := h.validator.ValidateWithDetailedErrors(&updateUsernameReq); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		util.WriteError(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
 
 	resp, err := h.services.UpdateUsername(&updateUsernameReq)
 	if err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
+		writeAppError(w, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
-	}
+	util.WriteJSON(w, http.StatusOK, resp)
 }
 
 func (h *Handler) updatePassword(w http.ResponseWriter, r *http.Request) {
 	var updatePasswordReq schemas.UpdatePasswordReq
 	userID, err := middleware.GetUserId(r.Context())
 	if err != nil {
-		http.Error(w, exceptions.ErrInvalidToken, http.StatusUnauthorized)
+		util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
 		return
 	}
 
 	updatePasswordReq.ID = userID
 
-	if err := util.DecodeJSON(w, r, &updatePasswordReq); err != nil {
-		http.Error(w, exceptions.ErrInvalidJSONFormat, http.StatusBadRequest)
+	if err := util.DecodeJSONRequest(r, &updatePasswordReq); err != nil {
+		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
 	}
 	if err := h.validator.ValidateWithDetailedErrors(&updatePasswordReq); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		util.WriteError(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
 	if err := h.services.UpdatePassword(&updatePasswordReq); err != nil {
-		http.Error(w, exceptions.ErrInternalServer, http.StatusInternalServerError)
+		writeAppError(w, err)
 		return
 	}
-	w.WriteHeader(http.StatusNoContent)
+	util.WriteJSON(w, http.StatusNoContent, nil)
+}
+
+func (h *Handler) LogOut(w http.ResponseWriter, r *http.Request) {
+	util.WriteJSON(w, http.StatusOK, map[string]string{"message": "logged out"})
 }

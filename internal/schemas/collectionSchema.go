@@ -16,7 +16,7 @@ type CreateCollectionResp struct {
 
 type UpdateCollectionReq struct {
 	ID          int    `validate:"required,gt=0"`
-	Name        string `json:"name,omitempty"`
+	Name        string `json:"name" validate:"required"`
 	Description string `json:"description,omitempty"`
 }
 
@@ -51,4 +51,17 @@ type TrainSchemaReq struct {
 
 type TrainSchemaResp struct {
 	Cards []CardsByCollectionID `json:"cards"`
+}
+
+type GetCollectionByIDResp struct {
+	ID          int       `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"createdAt"`
+}
+
+type PatchCollectionReq struct {
+	ID          int     `validate:"required,gt=0"`
+	Name        *string `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
 }

@@ -1,8 +1,11 @@
 package repository
 
 import (
+	"back/internal/exceptions"
 	"back/internal/models"
+	"errors"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 type CollectionRepositoryImpl struct {
@@ -23,6 +26,9 @@ func (r *CollectionRepositoryImpl) CreateCollection(collection *models.Collectio
 func (r *CollectionRepositoryImpl) GetCollectionByID(id int) (*models.Collection, error) {
 	var collection models.Collection
 	if err := r.db.First(&collection, "id = ?", id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, exceptions.NewAppError(http.StatusNotFound, exceptions.ErrCollectionNotFound, err)
+		}
 		return nil, err
 	}
 	return &collection, nil
