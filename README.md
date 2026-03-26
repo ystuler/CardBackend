@@ -1,52 +1,71 @@
 # Flashcard Learning Backend API
 
-## 📚 Project Overview
-A REST API backend for a digital flashcard learning platform built with Go. Users can create personal collections of flashcards, manage their study materials, and practice with randomized card sequences for effective learning.
+REST API для платформы обучения по карточкам.
 
-## 🎯 Core Functionality
-- **User Authentication**: JWT-based registration and login system
-- **Collection Management**: Create, read, update, delete flashcard collections
-- **Card Management**: Add, edit, remove individual flashcards within collections
-- **Practice Mode**: Random card shuffling for study sessions
-- **Profile Management**: Update username and password
+Ссылка на отчет: [REPORT.md](REPORT.md)
 
-## 🏗️ Architecture
-**Clean Architecture Pattern**: Handler → Service → Repository → Database
-- **Handler Layer**: HTTP request/response handling with Chi router
-- **Service Layer**: Business logic implementation
-- **Repository Layer**: Data access abstraction with GORM
-- **Database**: PostgreSQL with cascade delete relationships
+Также можно воспользоваться простеньким веб-сайтом, его репо [тут](https://github.com/ystuler/CardFrontend)
 
-## 📊 Data Model
-```
-Users (1:N) Collections (1:N) Cards
-- id, username, password_hash    - id, name, description, user_id    - id, question, answer, collection_id
+## Запуск
+
+### Docker
+Использует локальную БД
+
+1. Поднять сервисы:
+
+```bash
+docker compose up --build
 ```
 
-## 🔧 Technology Stack
-- **Language**: Go 1.22.1
-- **Framework**: Chi router, GORM ORM
-- **Database**: PostgreSQL
-- **Authentication**: JWT tokens with bcrypt password hashing
-- **Validation**: go-playground/validator
-- **Containerization**: Docker & Docker Compose
-- **Testing**: testify framework
+2. API будет доступен на:
 
-## 🚀 API Endpoints
-- `POST /auth/signup` - User registration
-- `POST /auth/login` - User authentication
-- `GET /collections` - Get user collections
-- `POST /collections` - Create new collection
-- `POST /collections/{id}/cards` - Add card to collection
-- `GET /collections/{id}/train` - Start practice session (randomized cards)
-- `PUT/DELETE /cards/{id}` - Update/delete specific cards
+```text
+http://localhost:8000
+```
 
-## 🎲 Key Features
-- **Random Practice**: Cards are shuffled randomly for each practice session
-- **Secure Authentication**: JWT tokens with configurable expiration
-- **Data Validation**: Request validation at multiple layers
-- **Error Handling**: Comprehensive error responses with proper HTTP status codes
-- **Cascade Operations**: Deleting collections automatically removes associated cards
+### Bare metal
 
-## 💡 Use Cases
-Perfect for students, language learners, or anyone who wants to create digital flashcards for memorization and spaced repetition learning.
+1. Поднять только локальную БД:
+
+```bash
+make db-up
+```
+
+2. Запустить приложение:
+
+```bash
+make run
+```
+
+## Конфигурация
+
+Базовые значения лежат в [config/config.yaml](config/config.yaml).
+
+Поддерживается переопределение через переменные окружения:
+
+- APP_SERVER_IP
+- APP_SERVER_PORT
+- APP_DATABASE_HOST
+- APP_DATABASE_PORT
+- APP_DATABASE_USER
+- APP_DATABASE_PASSWORD
+- APP_DATABASE_DBNAME
+- APP_DATABASE_SSLMODE
+- APP_DATABASE_TIMEZONE
+- APP_JWT_SIGNINGKEY
+
+## Swagger
+
+Генерация:
+
+```bash
+make swagger
+```
+
+В результате обновляется [swagger.yaml](swagger.yaml) в корне проекта.
+
+Просмотр:
+
+1. открыть [онлайн редактор](https://editor.swagger.io/)
+2. File -> Import File
+3. выбрать [swagger.yaml](swagger.yaml)

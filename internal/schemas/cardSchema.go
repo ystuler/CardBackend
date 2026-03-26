@@ -12,6 +12,11 @@ type CreateCardResp struct {
 	CollectionID int    `json:"collectionID"`
 }
 
+type UpdateCardBody struct {
+	Question *string `json:"question,omitempty"`
+	Answer   *string `json:"answer,omitempty"`
+}
+
 type UpdateCardReq struct {
 	ID       int     `validate:"required,gt=0"`
 	Question *string `json:"question,omitempty"`

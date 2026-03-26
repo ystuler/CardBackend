@@ -1,7 +1,11 @@
 package repository
 
 import (
+	"back/internal/exceptions"
 	"back/internal/models"
+	"errors"
+	"net/http"
+
 	"gorm.io/gorm"
 )
 
@@ -46,6 +50,9 @@ func (r *CardRepositoryImpl) GetAllCards() ([]models.Card, error) {
 func (r *CardRepositoryImpl) GetCardByID(cardID int) (*models.Card, error) {
 	var card models.Card
 	if err := r.db.First(&card, cardID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, exceptions.NewAppError(http.StatusNotFound, exceptions.ErrCardNotFound, err)
+		}
 		return nil, err
 	}
 	return &card, nil

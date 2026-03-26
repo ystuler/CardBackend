@@ -22,6 +22,10 @@ type SignInResp struct {
 	Username string `json:"username"`
 }
 
+type LogOutResp struct {
+	Message string `json:"message"`
+}
+
 type Profile struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
@@ -35,6 +39,10 @@ type GetProfileResp struct {
 	Profile Profile `json:"profile"`
 }
 
+type UpdateUsernameBody struct {
+	Username string `json:"username" validate:"required"`
+}
+
 type UpdateUsernameReq struct {
 	ID       int    `validate:"required,gt=0"`
 	Username string `json:"username" validate:"required"`
@@ -43,6 +51,11 @@ type UpdateUsernameReq struct {
 type UpdateUsernameResp struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
+}
+
+type UpdatePasswordBody struct {
+	OldPassword string `json:"old_password" validate:"required"`
+	NewPassword string `json:"new_password" validate:"required"`
 }
 
 type UpdatePasswordReq struct {

@@ -6,8 +6,8 @@ type Collection struct {
 	ID          int    `gorm:"primaryKey;autoIncrement"`
 	Name        string `gorm:"not null"`
 	Description *string
-	CreatedAt   time.Time `gorm:"autoCreateTime"`
-	UserID      int       `gorm:"not null"`
+	CreatedAt   time.Time `gorm:"autoCreateTime;index"`
+	UserID      int       `gorm:"not null;index"`
 
 	Card []Card `gorm:"not null;constraint:OnDelete:CASCADE;"`
 }

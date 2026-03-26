@@ -15,7 +15,10 @@ type Authorization interface {
 
 type Collection interface {
 	CreateCollection(collectionSchema *schemas.CreateCollectionReq, userID int) (*schemas.CreateCollectionResp, error)
+	EnsureCollectionAccess(collectionID, userID int) error
+	GetCollectionByID(collectionID int) (*schemas.GetCollectionByIDResp, error)
 	UpdateCollection(collectionSchema *schemas.UpdateCollectionReq) (*schemas.UpdateCollectionResp, error)
+	PatchCollection(collectionSchema *schemas.PatchCollectionReq) (*schemas.UpdateCollectionResp, error)
 	RemoveCollection(collectionSchema *schemas.RemoveCollectionReq) error
 	GetAllCollections(userID int) (*schemas.AllCollectionsResp, error)
 	TrainCards(req *schemas.TrainSchemaReq) (*schemas.TrainSchemaResp, error)
@@ -23,6 +26,7 @@ type Collection interface {
 
 type Card interface {
 	CreateCard(cardSchema *schemas.CreateCardReq, collectionID int) (*schemas.CreateCardResp, error)
+	EnsureCardAccess(cardID, userID int) error
 	UpdateCard(cardSchema *schemas.UpdateCardReq) (*schemas.UpdateCardResp, error)
 	RemoveCard(cardSchema *schemas.RemoveCardReq) error
 	GetCardsByCollectionID(collectionID int) (*schemas.GetCardByCollectionIDResp, error)
@@ -38,6 +42,6 @@ func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(repos.UserRepository),
 		Collection:    NewCollectionService(repos.CollectionRepository),
-		Card:          NewCardService(repos.CardRepository),
+		Card:          NewCardService(repos.CardRepository, repos.CollectionRepository),
 	}
 }

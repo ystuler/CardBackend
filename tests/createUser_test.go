@@ -4,6 +4,7 @@ import (
 	"back/config"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -50,6 +51,7 @@ func TestUserSignup(t *testing.T) {
 	// Подготовка тестового окружения
 	ts, repos := setupTestEnvironment(t)
 	defer teardownTestEnvironment(ts)
+	username := fmt.Sprintf("testuser_%d", time.Now().UnixNano())
 
 	hashedPassword, err := util.HashPassword("testpassword")
 	if err != nil {
@@ -58,14 +60,14 @@ func TestUserSignup(t *testing.T) {
 
 	// Создание пользователя для теста
 	testUser := models.User{
-		Username:     "testuser",
+		Username:     username,
 		PasswordHash: hashedPassword,
 		CreatedAt:    time.Now(),
 	}
 
 	// Подготовка данных для запроса
 	signupData := map[string]string{
-		"username": "testuser",
+		"username": username,
 		"password": "testpassword",
 	}
 	jsonData, err := json.Marshal(signupData)
@@ -84,7 +86,7 @@ func TestUserSignup(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
 
 	// Проверка созданного пользователя в базе данных
-	createdUser, err := repos.GetUserByUsername("testuser")
+	createdUser, err := repos.GetUserByUsername(username)
 	if err != nil {
 		t.Fatalf("could not get user by username: %s", err)
 	}
@@ -96,6 +98,7 @@ func TestUserSignup(t *testing.T) {
 func TestUserLogin(t *testing.T) {
 	ts, repos := setupTestEnvironment(t)
 	defer teardownTestEnvironment(ts)
+	username := fmt.Sprintf("testuser_%d", time.Now().UnixNano())
 
 	hashedPassword, err := util.HashPassword("testpassword")
 	if err != nil {
@@ -104,7 +107,7 @@ func TestUserLogin(t *testing.T) {
 
 	// Создание пользователя для теста
 	testUser := models.User{
-		Username:     "testuser1",
+		Username:     username,
 		PasswordHash: hashedPassword,
 		CreatedAt:    time.Now(),
 	}
@@ -116,7 +119,7 @@ func TestUserLogin(t *testing.T) {
 
 	// Подготовка данных для запроса
 	loginData := map[string]string{
-		"username": "testuser",
+		"username": username,
 		"password": "testpassword",
 	}
 	jsonData, err := json.Marshal(loginData)

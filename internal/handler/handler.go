@@ -1,9 +1,12 @@
 package handler
 
 import (
+	"back/internal/exceptions"
 	"back/internal/middleware"
 	"back/internal/service"
 	"back/internal/util"
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -24,16 +27,25 @@ func (h *Handler) InitRoutes() *chi.Mux {
 	r.Use(chiMiddleware.Recoverer)
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
 
+	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		util.WriteError(w, http.StatusNotFound, exceptions.ErrResourceNotFound)
+	})
+
+	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
+		util.WriteError(w, http.StatusMethodNotAllowed, exceptions.ErrMethodNotAllowed)
+	})
+
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/signup", h.SignUp)
 		r.Post("/login", h.SignIn)
+		r.Post("/logout", h.LogOut)
 	})
 
 	r.Group(func(r chi.Router) {
@@ -50,7 +62,9 @@ func (h *Handler) InitRoutes() *chi.Mux {
 			r.Post("/", h.createCollection)
 
 			r.Route("/{collectionID}", func(r chi.Router) {
+				r.Get("/", h.getCollectionByID)
 				r.Put("/", h.editCollection)
+				r.Patch("/", h.patchCollection)
 				r.Delete("/", h.removeCollection)
 				r.Get("/train", h.startPractise)
 
@@ -63,6 +77,7 @@ func (h *Handler) InitRoutes() *chi.Mux {
 
 		r.Route("/cards/{cardID}", func(r chi.Router) {
 			r.Put("/", h.editCard)
+			r.Patch("/", h.editCard)
 			r.Delete("/", h.removeCard)
 		})
 	})

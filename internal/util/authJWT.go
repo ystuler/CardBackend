@@ -4,9 +4,10 @@ import (
 	"back/config"
 	"back/internal/models"
 	"errors"
-	"github.com/golang-jwt/jwt/v5"
 	"strconv"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func GenerateJWT(userModel *models.User) (string, error) {
