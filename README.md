@@ -9,7 +9,7 @@ REST API для платформы обучения по карточкам.
 ## Запуск
 
 ### Docker
-Использует локальную БД
+По умолчанию использует параметры БД из config/config.yaml.
 
 1. Поднять сервисы:
 
@@ -39,9 +39,11 @@ make run
 
 ## Конфигурация
 
-Базовые значения лежат в [config/config.yaml](config/config.yaml).
+Рекомендуемый способ настройки: редактировать [config/config.yaml](config/config.yaml).
 
-Поддерживается переопределение через переменные окружения:
+Это основной источник параметров (особенно для database.host/database.port/database.user/database.password/database.dbname).
+
+Переопределение через переменные окружения поддерживается и полезно как временный override (например, для CI/CD или одноразового запуска):
 
 - APP_SERVER_IP
 - APP_SERVER_PORT
@@ -53,6 +55,12 @@ make run
 - APP_DATABASE_SSLMODE
 - APP_DATABASE_TIMEZONE
 - APP_JWT_SIGNINGKEY
+
+Приоритет значений:
+
+1. Переменные окружения APP_*
+2. Значения из config/config.yaml
+3. Значения по умолчанию в коде
 
 ## Swagger
 
