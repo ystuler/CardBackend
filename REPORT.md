@@ -100,11 +100,10 @@ Swagger генерируется автоматически из аннотац�
 - `make test`
 - выполняемая команда: `go test ./...`
 
-## 10. Список скриншотов для отчета
-### 10.1 Предметная область
-- PLACEHOLDER: Вставить скрин описания предметной области (раздел 2)
+## 9. Список скриншотов для отчета
+### 9.1 Предметная область
 
-### 10.2 Скриншоты по каждой ручке
+### 9.2 Скриншоты по каждой ручке
 Для каждой ручки приложить 2 скрина:
 1) участок кода с реализацией ручки
 2) выполнение ручки в Swagger/Postman
@@ -146,7 +145,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 }
 ```
 - Успешная регистрация
-![body запроса](image.png)
+![body запроса](img/image.png)
 ![ответ сервера и возможные варианты](img/image-1.png)
 
 POST /auth/login
@@ -249,14 +248,14 @@ handler updateUsername
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body schemas.UpdateUsernameReq true "username payload"
+// @Param request body schemas.UpdateUsernameBody true "username payload"
 // @Success 200 {object} schemas.UpdateUsernameResp
 // @Failure 400 {object} util.ErrorResponse
 // @Failure 401 {object} util.ErrorResponse
 // @Failure 422 {object} util.ErrorResponse
 // @Router /profile/username [put]
 func (h *Handler) updateUsername(w http.ResponseWriter, r *http.Request) {
-	var updateUsernameReq schemas.UpdateUsernameReq
+	var updateUsernameBody schemas.UpdateUsernameBody
 
 	userID, err := middleware.GetUserId(r.Context())
 	if err != nil {
@@ -264,11 +263,14 @@ func (h *Handler) updateUsername(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updateUsernameReq.ID = userID
-
-	if err := util.DecodeJSONRequest(r, &updateUsernameReq); err != nil {
+	if err := util.DecodeJSONRequest(r, &updateUsernameBody); err != nil {
 		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
+	}
+
+	updateUsernameReq := schemas.UpdateUsernameReq{
+		ID:       userID,
+		Username: updateUsernameBody.Username,
 	}
 
 	if err := h.validator.ValidateWithDetailedErrors(&updateUsernameReq); err != nil {
@@ -367,7 +369,6 @@ func (h *Handler) getAllCollections(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, http.StatusOK, allCollections)
 }
 ```
-- PLACEHOLDER: Скрин запроса/ответа
 ![запрос и ответ](img/image-9.png)
 
 GET /collections/{collectionID}/
@@ -459,7 +460,6 @@ func (h *Handler) createCollection(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, http.StatusCreated, createdCollection)
 }
 ```
-- PLACEHOLDER: Скрин успешного создания коллекции
 ![запрос](img/image-11.png)
 ![ответ](img/image-12.png)
 
@@ -473,7 +473,7 @@ handler editCollection
 // @Accept json
 // @Produce json
 // @Param collectionID path int true "collection id"
-// @Param request body schemas.UpdateCollectionReq true "collection payload"
+// @Param request body schemas.UpdateCollectionBody true "collection payload"
 // @Success 200 {object} schemas.UpdateCollectionResp
 // @Failure 400 {object} util.ErrorResponse
 // @Failure 401 {object} util.ErrorResponse
@@ -481,9 +481,9 @@ handler editCollection
 // @Failure 422 {object} util.ErrorResponse
 // @Router /collections/{collectionID}/ [put]
 func (h *Handler) editCollection(w http.ResponseWriter, r *http.Request) {
-	var updatedCollectionSchema schemas.UpdateCollectionReq
+	var updateCollectionBody schemas.UpdateCollectionBody
 
-	if err := util.DecodeJSONRequest(r, &updatedCollectionSchema); err != nil {
+	if err := util.DecodeJSONRequest(r, &updateCollectionBody); err != nil {
 		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
 	}
@@ -505,7 +505,11 @@ func (h *Handler) editCollection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedCollectionSchema.ID = collectionID
+	updatedCollectionSchema := schemas.UpdateCollectionReq{
+		ID:          collectionID,
+		Name:        updateCollectionBody.Name,
+		Description: updateCollectionBody.Description,
+	}
 
 	if err := h.validator.ValidateWithDetailedErrors(&updatedCollectionSchema); err != nil {
 		util.WriteError(w, http.StatusUnprocessableEntity, err.Error())
@@ -521,7 +525,6 @@ func (h *Handler) editCollection(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, http.StatusOK, updatedCollection)
 }
 ```
-- PLACEHOLDER: Скрин полного обновления коллекции
 ![запрос](img/image-15.png)
 ![ответ](img/image-14.png)
 
@@ -535,7 +538,7 @@ handler patchCollection
 // @Accept json
 // @Produce json
 // @Param collectionID path int true "collection id"
-// @Param request body schemas.PatchCollectionReq true "collection payload"
+// @Param request body schemas.PatchCollectionBody true "collection payload"
 // @Success 200 {object} schemas.UpdateCollectionResp
 // @Failure 400 {object} util.ErrorResponse
 // @Failure 401 {object} util.ErrorResponse
@@ -543,9 +546,9 @@ handler patchCollection
 // @Failure 422 {object} util.ErrorResponse
 // @Router /collections/{collectionID}/ [patch]
 func (h *Handler) patchCollection(w http.ResponseWriter, r *http.Request) {
-	var patchCollectionSchema schemas.PatchCollectionReq
+	var patchCollectionBody schemas.PatchCollectionBody
 
-	if err := util.DecodeJSONRequest(r, &patchCollectionSchema); err != nil {
+	if err := util.DecodeJSONRequest(r, &patchCollectionBody); err != nil {
 		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
 	}
@@ -567,7 +570,11 @@ func (h *Handler) patchCollection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	patchCollectionSchema.ID = collectionID
+	patchCollectionSchema := schemas.PatchCollectionReq{
+		ID:          collectionID,
+		Name:        patchCollectionBody.Name,
+		Description: patchCollectionBody.Description,
+	}
 
 	if patchCollectionSchema.Name == nil && patchCollectionSchema.Description == nil {
 		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidRequestBody)
@@ -588,7 +595,6 @@ func (h *Handler) patchCollection(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, http.StatusOK, updatedCollection)
 }
 ```
-- PLACEHOLDER: Скрин частичного обновления коллекции
 ![запрос](img/image-16.png)
 ![ответ](img/image-17.png)
 
@@ -641,7 +647,6 @@ func (h *Handler) removeCollection(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, http.StatusNoContent, nil)
 }
 ```
-- PLACEHOLDER: Скрин удаления коллекции
 ![запрос](img/image-18.png)
 ![ответ](img/image-19.png)
 
@@ -695,7 +700,6 @@ func (h *Handler) startPractise(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, http.StatusOK, randomCards)
 }
 ```
-- PLACEHOLDER: Скрин режима тренировки
 ![вопрос и ответ](img/image-20.png)
 
 GET /collections/{collectionID}/cards/
@@ -739,7 +743,6 @@ func (h *Handler) getCardsByCollectionID(w http.ResponseWriter, r *http.Request)
 	util.WriteJSON(w, http.StatusOK, cards)
 }
 ```
-- PLACEHOLDER: Скрин запроса/ответа
 ![вопрос и ответ](img/image-21.png)
 
 чтобы получить 404, запросим несуществующиее значение
@@ -801,7 +804,6 @@ func (h *Handler) createCard(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, http.StatusCreated, createdCard)
 }
 ```
-- PLACEHOLDER: Скрин успешного создания карточки
 ![запрос](img/image-22.png)
 ![ответ](img/image-23.png)
 
@@ -815,7 +817,7 @@ handler editCard (для PUT)
 // @Accept json
 // @Produce json
 // @Param cardID path int true "card id"
-// @Param request body schemas.UpdateCardReq true "card payload"
+// @Param request body schemas.UpdateCardBody true "card payload"
 // @Success 200 {object} schemas.UpdateCardResp
 // @Failure 400 {object} util.ErrorResponse
 // @Failure 401 {object} util.ErrorResponse
@@ -824,9 +826,9 @@ handler editCard (для PUT)
 // @Router /cards/{cardID}/ [put]
 // @Router /cards/{cardID}/ [patch]
 func (h *Handler) editCard(w http.ResponseWriter, r *http.Request) {
-	var updatedCardSchemaReq schemas.UpdateCardReq
+	var updateCardBody schemas.UpdateCardBody
 
-	if err := util.DecodeJSONRequest(r, &updatedCardSchemaReq); err != nil {
+	if err := util.DecodeJSONRequest(r, &updateCardBody); err != nil {
 		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
 	}
@@ -849,7 +851,11 @@ func (h *Handler) editCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedCardSchemaReq.ID = cardID
+	updatedCardSchemaReq := schemas.UpdateCardReq{
+		ID:       cardID,
+		Question: updateCardBody.Question,
+		Answer:   updateCardBody.Answer,
+	}
 
 	if err := h.validator.ValidateWithDetailedErrors(&updatedCardSchemaReq); err != nil {
 		util.WriteError(w, http.StatusUnprocessableEntity, err.Error())
@@ -864,7 +870,6 @@ func (h *Handler) editCard(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, http.StatusOK, updatedCard)
 }
 ```
-- PLACEHOLDER: Скрин полного обновления карточки
 ![запрос](img/image-24.png)
 ![ответ](img/image-25.png)
 
@@ -878,7 +883,7 @@ handler editCard (для PATCH)
 // @Accept json
 // @Produce json
 // @Param cardID path int true "card id"
-// @Param request body schemas.UpdateCardReq true "card payload"
+// @Param request body schemas.UpdateCardBody true "card payload"
 // @Success 200 {object} schemas.UpdateCardResp
 // @Failure 400 {object} util.ErrorResponse
 // @Failure 401 {object} util.ErrorResponse
@@ -887,9 +892,9 @@ handler editCard (для PATCH)
 // @Router /cards/{cardID}/ [put]
 // @Router /cards/{cardID}/ [patch]
 func (h *Handler) editCard(w http.ResponseWriter, r *http.Request) {
-	var updatedCardSchemaReq schemas.UpdateCardReq
+	var updateCardBody schemas.UpdateCardBody
 
-	if err := util.DecodeJSONRequest(r, &updatedCardSchemaReq); err != nil {
+	if err := util.DecodeJSONRequest(r, &updateCardBody); err != nil {
 		util.WriteError(w, http.StatusBadRequest, exceptions.ErrInvalidJSONFormat)
 		return
 	}
@@ -912,7 +917,11 @@ func (h *Handler) editCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedCardSchemaReq.ID = cardID
+	updatedCardSchemaReq := schemas.UpdateCardReq{
+		ID:       cardID,
+		Question: updateCardBody.Question,
+		Answer:   updateCardBody.Answer,
+	}
 
 	if err := h.validator.ValidateWithDetailedErrors(&updatedCardSchemaReq); err != nil {
 		util.WriteError(w, http.StatusUnprocessableEntity, err.Error())
@@ -927,7 +936,6 @@ func (h *Handler) editCard(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, http.StatusOK, updatedCard)
 }
 ```
-- PLACEHOLDER: Скрин частичного обновления карточки
 ![запрос](img/image-26.png)
 ![ответ](img/image-27.png)
 
@@ -980,10 +988,9 @@ func (h *Handler) removeCard(w http.ResponseWriter, r *http.Request) {
 	util.WriteJSON(w, http.StatusNoContent, nil)
 }
 ```
-- PLACEHOLDER: Скрин удаления карточки
 ![вопрос и ответ](img/image-28.png)
 
-### 10.3 Неавторизованный доступ
+### 9.3 Неавторизованный доступ
 middleware-проверка токена
 ```go
 func UserIdentity(next http.Handler) http.Handler {
@@ -995,17 +1002,27 @@ func UserIdentity(next http.Handler) http.Handler {
 		}
 
 		headerParts := strings.Split(header, " ")
-		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
+		var token string
+		switch len(headerParts) {
+		case 1:
+			token = headerParts[0]
+		case 2:
+			if headerParts[0] != "Bearer" {
+				util.WriteError(w, http.StatusUnauthorized, exceptions.ErrUnauthorized)
+				return
+			}
+			token = headerParts[1]
+		default:
 			util.WriteError(w, http.StatusUnauthorized, exceptions.ErrUnauthorized)
 			return
 		}
 
-		if len(headerParts[1]) == 0 {
+		if len(token) == 0 {
 			util.WriteError(w, http.StatusUnauthorized, exceptions.ErrUnauthorized)
 			return
 		}
 
-		claims, err := util.ParseToken(headerParts[1])
+		claims, err := util.ParseToken(token)
 		if err != nil {
 			util.WriteError(w, http.StatusUnauthorized, exceptions.ErrInvalidToken)
 			return
@@ -1022,11 +1039,10 @@ func UserIdentity(next http.Handler) http.Handler {
 	})
 }
 ```
-- PLACEHOLDER: Скрин запроса к защищенной ручке без токена
 ![запрос и ответ](img/image-29.png)
 
 
-### 10.4 Валидация
+### 9.4 Валидация
 код validator/v10
 ```go
 func (v *Validator) ValidateWithDetailedErrors(i interface{}) error {
@@ -1071,19 +1087,17 @@ func DecodeJSON(schema interface{}, raw []byte) error {
 	return nil
 }
 ```
-- PLACEHOLDER: Скрин ответа 422 на невалидные данные
 Опустим обязательный ключ "name", получим ошибку 422
 ![запрос](img/image-31.png)
 ![ответ](img/image-32.png)
-- PLACEHOLDER: Скрин ответа 400 на некорректный JSON
 Сломаем json с помощью лишней запятой в конце
 ![запрос и ответ](img/image-33.png)
 
-### 10.6 Дополнительные материалы
-- PLACEHOLDER: Приложить README
-- PLACEHOLDER: Приложить env/config без секретов
-- PLACEHOLDER: Скрин подтверждения данных в БД преподавателя
+### 9.5 Дополнительные материалы
+- README проекта: [README.md](README.md)
+- Конфигурация приложения без секретов: [config/config.yaml](config/config.yaml)
+- Подтверждение данных в БД преподавателя: приложен скриншот в наборе материалов к отчёту
 
-## 11. Заключение
+## 10. Заключение
 В ходе работы реализован REST API с авторизацией, CRUD, обработкой ошибок и валидацией по требованиям задания.
 Проект документирован (README + Swagger), покрыт тестами и готов к демонстрации преподавателю.
